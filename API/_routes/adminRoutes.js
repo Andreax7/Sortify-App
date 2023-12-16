@@ -3,7 +3,7 @@ const express = require("express");
 const auth  = require('../_utils/auth')
 const admin = require('../_database/_queries/admin')
 const users = require('../_database/_queries/allUsers')
-
+const helpers = require('../_utils/helpers')
 const router = express.Router();
 
 router.post('/type/add', auth.authenticateToken, async (req, res) =>{
@@ -233,6 +233,193 @@ router.put('/users/requests/:id', auth.authenticateToken, async (req, res) =>{
                 res.status(201).json(userRequests);
             }
             else res.status(403).json({ "Error": 'seen parameter not given' })
+        }
+        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
+    }
+    catch (err){
+        console.log(err.message);
+        res.status(400).send('something went wrong!');
+    }
+});
+
+
+router.get('/containers', auth.authenticateToken, async (req, res) =>{
+    try{
+        const userObj = req.token
+        if(userObj.role === 1){
+            const allContainers = await admin.AllContainerLocations().then((res)=> {return res})
+            console.log(allContainers)
+       // await user.save();
+            res.status(201).json(allContainers);
+        }
+        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
+    }
+    catch (err){
+        console.log(err.message);
+        res.status(400).send('something went wrong!');
+    }
+});
+
+router.get('/containers/:id', auth.authenticateToken, async (req, res) =>{
+    try{
+        const userObj = req.token
+        if(userObj.role === 1){
+            const container = await admin.getContainer(parseInt(req.params.id)).then((res)=> {return res})
+            console.log(container)
+       // await user.save();
+            res.status(201).json(container);
+        }
+        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
+    }
+    catch (err){
+        console.log(err.message);
+        res.status(400).send('something went wrong!');
+    }
+});
+
+router.post('/locations/add', auth.authenticateToken, async (req, res) =>{
+    try{
+        const userObj = req.token
+        //console.log(userObj)
+        if(userObj.role === 1){
+            if(req.body.typeId === undefined || req.body.location === undefined || req.body.active === undefined ) {
+                return res.status(400).json({ "error": 'Empty fields' }) 
+            }
+            else if(req.body.barcode === "" || req.body.productName === "" || req.body.details === "" || req.body.typeId === "" ) {
+                return res.status(400).json({ "error": 'Empty fields' }) 
+            }
+            const locations = await admin.AllContainerLocations().then((res)=> {return res})
+            let name = locations.find( el => el.productName === req.body.productName )
+            if(name === undefined){
+                DBresponse =  await admin.addContainer(body).then((res)=> {return res})
+                return res.status(201).json(DBresponse)
+            }
+            else res.status(400).json({ "error": 'This product exists' })
+        }
+        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })     
+    }
+    catch (err){
+        console.log(err.message);
+        res.status(400).send('something went wrong!');
+    }
+});
+
+router.put('/containers/:id', auth.authenticateToken, async (req, res) =>{
+    try{
+        const userObj = req.token
+        if(userObj.role === 1){
+            if(req.body.typeId !== undefined || req.body.typeId !== "" ){
+                const container = await admin.updateContainer(body,parseInt(req.params.id)).then((res)=> {return res})
+                console.log(container)
+                res.status(201).json(container);
+            }
+            else res.status(403).json({ "Error": 'seen parameter not given' })
+        }
+        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
+    }
+    catch (err){
+        console.log(err.message);
+        res.status(400).send('something went wrong!');
+    }
+});
+
+router.put('/containers/deactivate/:id', auth.authenticateToken, async (req, res) =>{
+    try{
+        const userObj = req.token
+        if(userObj.role === 1){
+            if(req.body.typeId !== undefined || req.body.typeId !== "" ){
+                const container = await admin.getContainer(parseInt(req.params.id))
+                let findCount = container.find( el => el.containerId === parseInt(req.params.id) )
+                if(findCount === undefined){
+                    res.status(403).json({ "Error": 'container does not exist' })
+                }
+                else{
+                    const deactivate = await admin.deactivateContainer(parseInt(req.params.id)).then((res)=> {return res})
+                    console.log(deactivate)
+                    res.status(201).json(deactivate);
+                }
+                
+            }
+            else res.status(403).json({ "Error": 'seen parameter not given' })
+        }
+        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
+    }
+    catch (err){
+        console.log(err.message);
+        res.status(400).send('something went wrong!');
+    }
+});
+
+router.post('/occupancy/add', auth.authenticateToken, async (req, res) =>{
+    try{
+        const userObj = req.token
+        //console.log(userObj)
+        if(userObj.role === 1){
+            if(req.body.date === undefined || req.body.state === undefined || req.body.containerId === undefined ) {
+                return res.status(400).json({ "error": 'Empty fields' }) 
+            }
+            else if(req.body.date === "" || req.body.state === "" || req.body.containerId === "" ) {
+                return res.status(400).json({ "error": 'Empty fields' }) 
+            }
+            const occupancies = await admin.getAllOccupancies().then((res)=> {return res})
+            let name = occupancies.find( el => el.containerId === req.body.containerId )
+            if(name === undefined){
+                DBresponse =  await admin.addOccupancy(parseInt(req.body.containerId),parseInt(req.body.state), req.body.date ).then((res)=> {return res})
+                return res.status(201).json(DBresponse)
+            }
+            else res.status(400).json({ "error": 'This product exists' })
+        }
+        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })     
+    }
+    catch (err){
+        console.log(err.message);
+        res.status(400).send('something went wrong!');
+    }
+});
+
+router.get('/occupancy/container/:cid', auth.authenticateToken, async (req, res) =>{
+    try{
+        const userObj = req.token
+        if(userObj.role === 1){
+            const occupancies = await admin.getAllOccupancies().then((res)=> {return res})
+            let name = occupancies.find( el => el.containerId === parseInt(req.params.cid) )
+            if(name === undefined){
+                    res.status(403).json({ "Error": 'container does not exist' })
+                }
+                else{
+                    const contOccupancy = await admin.getContainerOccupancy(parseInt(req.params.cid)).then((res)=> {return res})
+                    console.log(contOccupancy)
+                    res.status(201).json(contOccupancy);
+                }
+        }
+        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
+    }
+    catch (err){
+        console.log(err.message);
+        res.status(400).send('something went wrong!');
+    }
+});
+
+router.put('/occupancy/:id', auth.authenticateToken, async (req, res) =>{
+    try{
+        const userObj = req.token
+        if(userObj.role === 1){
+            if(helpers.checkDateFormat(req.body.date)){
+                if(req.body.state !== undefined || req.body.containerId !== undefined){
+                        const container = await admin.getContainerOccupancy(parseInt(req.body.containerId)).then((res)=> {return res})
+                        let findCount = container.find( el => el.ocId === parseInt(req.params.id) )
+                        if(findCount === undefined){
+                                res.status(403).json({ "Error": 'container does not exist' })
+                        }
+                        else{
+                                const change = await admin.updateContainerOccupancy(parseInt(req.params.id), parseInt(req.body.state), req.body.date).then((res)=> {return res})
+                                console.log(change)
+                                res.status(201).json(change);
+                        }
+                            
+                }
+            }
+            else res.status(403).json({ "Error": 'wrong date parameter given' })
         }
         else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
     }

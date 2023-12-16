@@ -12,8 +12,19 @@ function toBase64(filePath) {
     return Buffer.from(img).toString('base64');
   }
 
+  function checkDateFormat(date){
+    let timestamp = Date.parse(date);
+    if (isNaN(timestamp)) {
+        console.log("Invalid date format");
+        return new Error("Invalid date format")
+    } else {
+        console.log("Valid date format");
+        return true
+    }
+  }
 
 module.exports = {
     validateEmail,
-    toBase64
+    toBase64, 
+    checkDateFormat
 };

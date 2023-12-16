@@ -241,11 +241,11 @@ function deactivateContainer(cid){
   })
 }
 
-function addOccupancy(cid, state){
+function addOccupancy(cid, state, date){
   return new Promise((resolve, reject) => {
     let result = []
-    db.run(`INSERT INTO occupancy (containerId, state) VALUES (?, ?);`,
-          [cid, state], 
+    db.run(`INSERT INTO occupancy (containerId, state, date) VALUES (?, ?, ?);`,
+          [cid, state, date], 
           (err, rows) => {
             console.log(rows)
                 if(err) { reject(err) }
@@ -254,6 +254,19 @@ function addOccupancy(cid, state){
           () => { resolve("container has " + state + " occupancy") }
     )
   })
+}
+
+function getAllOccupancies(){
+  return new Promise((resolve, reject) => {
+    let result = []
+    db.each(`SELECT * FROM occupancy ;`,
+            (err, rows) => {
+              if(err){ reject(err) }
+              result.push(rows) 
+            }, () => {
+              resolve(result)
+    })
+  })  
 }
 
 function getContainerOccupancy(cid){
@@ -270,12 +283,12 @@ function getContainerOccupancy(cid){
   })  
 }
 
-function updateContainerOccupancy(oid, cid, state){
+function updateContainerOccupancy(oid, cid, state, date){
   return new Promise((resolve, reject) => {
     let result = []
     db.run(`UPDATE occupancy 
-            SET containerId = ?, state = ? WHERE ocId = ?;`,
-          [cid, state, oid], 
+            SET date = ?, state = ? WHERE ocId = ?;`,
+          [cid, date, state, oid], 
           (err, rows) => {
             console.log(rows)
                 if(err) { reject(err) }
@@ -284,6 +297,20 @@ function updateContainerOccupancy(oid, cid, state){
           () => { resolve("container "+ cid +" has " + state + " occupancy") }
     )
   })
+}
+
+function getContainer(cid){
+    return new Promise((resolve, reject) => {
+      let result = []
+      db.all(`SELECT * FROM containers 
+              WHERE containerId=? ;`, [cid],
+              (err, rows) => {
+                if(err){ reject(err) }
+                result.push(rows) 
+              }, () => {
+                resolve(result)
+      })
+    })  
 }
 
 module.exports = {
@@ -302,9 +329,11 @@ module.exports = {
   updateUserRequest,
   addContainer,
   AllContainerLocations,
+  getContainer,
   updateContainer,
   deactivateContainer,
   addOccupancy,
   getContainerOccupancy,
-  updateContainerOccupancy
+  updateContainerOccupancy,
+  getAllOccupancies
 }
