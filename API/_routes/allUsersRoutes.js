@@ -121,6 +121,7 @@ router.get('/type/alltypes', auth.authenticateToken, async (req, res) =>{
     }
 });
 
+
 router.get('/product/all', auth.authenticateToken, async (req, res) =>{
     try{
         const userObj = req.token

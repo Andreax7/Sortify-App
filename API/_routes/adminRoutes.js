@@ -147,8 +147,7 @@ router.get('/users', auth.authenticateToken, async (req, res) =>{
         const userObj = req.token
         if(userObj.role === 1){
             const allUsers = await admin.AllUsers().then((res)=> {return res})
-            console.log(allUsers)
-       // await user.save();
+           // console.log(allUsers)
             res.status(201).json(allUsers);
         }
         else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
@@ -362,8 +361,8 @@ router.post('/occupancy/add', auth.authenticateToken, async (req, res) =>{
                 return res.status(400).json({ "error": 'Empty fields' }) 
             }
             const occupancies = await admin.getAllOccupancies().then((res)=> {return res})
-            let name = occupancies.find( el => el.containerId === req.body.containerId )
-            if(name === undefined){
+            let id = occupancies.find( el => el.containerId === req.body.containerId )
+            if(id === undefined){
                 DBresponse =  await admin.addOccupancy(parseInt(req.body.containerId),parseInt(req.body.state), req.body.date ).then((res)=> {return res})
                 return res.status(201).json(DBresponse)
             }
