@@ -32,10 +32,7 @@
             android:name=".Activities.AdminActivities.AddLocationActivity"
             android:exported="true" />
         <!-- Other meta-data and activities -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyAbGxx7KlJ-449hsh9iv2Xz8PQjw3eiCJY" />
-
+      
         <activity
             android:name=".Activities.UserActivities.UserStatisticsActivity"
             android:exported="true" />
