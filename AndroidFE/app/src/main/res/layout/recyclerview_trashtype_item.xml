@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:layout_margin="5dp"
+    android:orientation="horizontal">
+
+
+        <TextView
+            android:id="@+id/trashTypeTextView"
+            android:layout_width="0dp"
+            android:layout_height="43dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/amaranth_bold"
+            android:paddingStart="10dp"
+            android:paddingEnd="5dp"
+            android:textAlignment="viewStart"
+            android:textAllCaps="false"
+            android:textColor="#2F8E7E"
+            android:textColorHint="#2F8E7E"
+            android:textColorLink="#2F8E7E"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/updateBtn"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/editTypeBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_margin="5dp"
+            android:backgroundTint="#A1004D29"
+            android:clickable="true"
+            android:contentDescription="@string/update_item"
+            app:backgroundTint="#00EEFF41"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.57"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView17"
+            app:rippleColor="#EEFF41"
+            app:srcCompat="@android:drawable/ic_menu_edit" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/deleteTypeBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_margin="5dp"
+            android:backgroundTint="#A1004D29"
+            android:clickable="true"
+            android:contentDescription="@string/addtype"
+            app:backgroundTint="#00EEFF41"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.57"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView17"
+            app:rippleColor="#EEFF41"
+            app:srcCompat="@android:drawable/ic_delete" />
+
+</LinearLayout>

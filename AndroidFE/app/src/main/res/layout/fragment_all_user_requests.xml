@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Activities.AdminActivities.FragmentAllUserRequests">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Switch
+            android:id="@+id/seenSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="@string/switch_between_seen_and_all_messages"
+            android:textColorHighlight="#24633B"
+            android:textColorLink="#FFFFFF"
+            android:textSize="16sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/requestListRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+</FrameLayout>

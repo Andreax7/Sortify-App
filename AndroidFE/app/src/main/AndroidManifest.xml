@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.sortifyandroidapp">
+    <!--
+         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but you must specify either coarse or fine
+         location permissions for the "MyLocation" functionality.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <uses-feature android:name="android.hardware.camera.any" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SortifyAndroidApp"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".Activities.AdminActivities.AddLocationActivity"
+            android:exported="true" />
+        <!-- Other meta-data and activities -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAbGxx7KlJ-449hsh9iv2Xz8PQjw3eiCJY" />
+
+        <activity
+            android:name=".Activities.UserActivities.UserStatisticsActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Activities.UserActivities.RecycleActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Activities.AdminActivities.UpdateProductActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Activities.AdminActivities.UpdateTypeActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Activities.AdminActivities.AddNewTypeActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Activities.AdminActivities.AddProductActivity"
+            android:exported="true" />
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+        -->
+        <activity
+            android:name=".Activities.AdminActivities.ContainerActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Activities.AdminActivities.ExploreProductsActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Activities.AdminActivities.AllUsersActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Activities.AdminActivities.AboutUserActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Activities.UserActivities.SupportActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Activities.UserActivities.UserDataActivity"
+            android:exported="true"
+            android:parentActivityName=".Activities.UserActivities.UserProfileMainActivity" />
+        <activity
+            android:name=".Activities.SignupActivity"
+            android:exported="true"
+            android:parentActivityName=".Activities.MainActivity" />
+        <activity
+            android:name=".Activities.UserActivities.UserProfileMainActivity"
+            android:exported="true"
+            android:parentActivityName=".Activities.MainActivity" />
+        <activity
+            android:name=".Activities.ContainerMapActivity"
+            android:exported="true"
+            android:parentActivityName=".Activities.UserActivities.UserProfileMainActivity" />
+        <activity
+            android:name=".Activities.AdminActivities.AdminProfileActivity"
+            android:exported="true"
+            android:parentActivityName=".Activities.MainActivity" />
+        <activity
+            android:name=".Activities.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activities.AdminActivities.CaptureAct"
+            android:screenOrientation="landscape"
+            android:stateNotNeeded="true"
+            android:theme="@style/zxing_CaptureTheme" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+    </application>
+
+</manifest>

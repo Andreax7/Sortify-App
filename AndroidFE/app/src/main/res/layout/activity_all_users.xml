@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background5"
+    tools:context=".Activities.AdminActivities.AllUsersActivity">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/allUsersBtn"
+        android:layout_width="206dp"
+        android:layout_height="49dp"
+        android:layout_marginTop="16dp"
+        android:background="#3C8B5F"
+        android:fontFamily="@font/viga"
+        android:text="@string/users"
+        android:textColor="#FFFAFBC6"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_frame"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.004"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/requestsBtn"
+        android:layout_width="206dp"
+        android:layout_height="49dp"
+        android:layout_marginTop="16dp"
+        android:background="#3C8B5F"
+        android:fontFamily="@font/viga"
+        android:text="@string/requests"
+        android:textColor="#FFFAFBC6"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_frame"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/allUsersBtn"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/backBtn2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#A1004D29"
+        android:clickable="true"
+        android:contentDescription="@string/backbtn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.166"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.989"
+        app:srcCompat="?attr/homeAsUpIndicator"
+        tools:ignore="ImageContrastCheck" />
+
+    <TextView
+        android:id="@+id/backText2"
+        android:layout_width="95dp"
+        android:layout_height="27dp"
+        android:fontFamily="@font/viga"
+        android:text="@string/go_back"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="#B3307843"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.363"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.963"
+        tools:ignore="TextContrastCheck" />
+
+    <FrameLayout
+        android:id="@+id/fragment_frame"
+        android:layout_width="413dp"
+        android:layout_height="542dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.424">
+
+    </FrameLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

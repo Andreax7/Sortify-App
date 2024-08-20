@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/alegreya_sc</item>
+        <item>@font/alegreya_sc_black</item>
+        <item>@font/amaranth_bold</item>
+        <item>@font/artifika</item>
+        <item>@font/bungee</item>
+        <item>@font/copse</item>
+        <item>@font/viga</item>
+    </array>
+</resources>
