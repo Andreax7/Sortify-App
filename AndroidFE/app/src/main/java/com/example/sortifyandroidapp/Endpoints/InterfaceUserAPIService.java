@@ -1,5 +1,7 @@
 package com.example.sortifyandroidapp.Endpoints;
 
+import com.example.sortifyandroidapp.Models.Container;
+import com.example.sortifyandroidapp.Models.ContainerLocation;
 import com.example.sortifyandroidapp.Models.Product;
 import com.example.sortifyandroidapp.Models.TrashType;
 import com.example.sortifyandroidapp.Models.User;
@@ -7,6 +9,7 @@ import com.example.sortifyandroidapp.Models.UserPassword;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -54,4 +57,22 @@ public interface InterfaceUserAPIService {
     })
     @GET("product/all")
     Call<List<Product>> getAllProducts(@Header("x-access-token") String token);
+
+    @Headers({
+            "Accept: */* ",
+            "User-Agent: Retrofit-App",
+            "content-type: application/json"
+    })
+    @GET("locations/all")
+    Call<List<Container>> getAllContainerLocations(@Header("x-access-token") String token);
+
+
+    @Headers({
+            "Accept: */* ",
+            "User-Agent: Retrofit-App",
+            "content-type: application/json"
+    })
+    @GET("locations/{typeId}")
+    Call<List<ContainerLocation>> getContainersByType(@Header("x-access-token") String token);
+
 }

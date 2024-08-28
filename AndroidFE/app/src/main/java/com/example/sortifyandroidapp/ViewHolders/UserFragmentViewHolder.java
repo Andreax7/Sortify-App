@@ -10,7 +10,7 @@ import com.example.sortifyandroidapp.R;
 
 public class UserFragmentViewHolder extends RecyclerView.ViewHolder {
 
-    public TextView email, status;
+    public TextView email, status, role;
     public View view;
 
     public UserFragmentViewHolder(@NonNull View itemView) {
@@ -18,6 +18,7 @@ public class UserFragmentViewHolder extends RecyclerView.ViewHolder {
 
         email = itemView.findViewById(R.id.userEmail);
         status = itemView.findViewById(R.id.userStatus);
+        role = itemView.findViewById(R.id.role);
         view  = itemView;
     }
 }

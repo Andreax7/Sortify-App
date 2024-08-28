@@ -161,5 +161,17 @@
     <string name="barcode">barcode</string>
     <string name="get_image">get image</string>
     <string name="productimg">productImg</string>
+    <string name="Edit_container">Edit container</string>
+
     <string name="are_you_sure_you_want_to_delete_this_product">Are you sure you want to delete this product?</string>
+    <string-array name="marker_colors_array">
+        <item>Orange</item>
+        <item>Green</item>
+        <item>Blue</item>
+        <item>Yellow</item>
+    </string-array>
+    <string name="my_map_api_key">AIzaSyB6F4fcWxFsWp4K-N3PP0Qvoy0Df86mQ-U</string>
+    <string name="all_containers_inactive_active_containers">All containers (+deactivated) /Active containers</string>
+    <string name="inactive_active">Inactive/Active</string>
+    <string name="containertype">containerType</string>
 </resources>

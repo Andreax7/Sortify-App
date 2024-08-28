@@ -107,15 +107,16 @@ public interface InterfaceAdminAPIService {
             "content-type: application/json"
     })
     @PUT("admin/users/{uid}")
-    Call<ResponseBody> changeUserStatus(@Header("x-access-token") String token,@Path(value="uid", encoded=true) String uid, @Body String active);
+    Call<ResponseBody> changeUserStatus(@Header("x-access-token") String token, @Path(value="uid", encoded=true) Integer uid, @Body Integer active);
 
+    // Changes User from Admin to User and revert
     @Headers({
             "Accept: */* ",
             "User-Agent: Retrofit-App",
             "content-type: application/json"
     })
     @PUT("admin/users/{uid}")
-    Call<ResponseBody> changeUserRole(@Header("x-access-token") String token,@Path(value="uid", encoded=true) String uid, @Body String role);
+    Call<ResponseBody> changeUserRole(@Header("x-access-token") String token,@Path(value="uid", encoded=true) Integer uid, @Body Integer role);
 
 
     //Put request to set/ unset users request status as seen/ unseen
@@ -144,6 +145,24 @@ public interface InterfaceAdminAPIService {
     })
     @POST("admin/locations/add")
     Call<ResponseBody> addContainerOnLocation(@Header("x-access-token") String token, @Body Container container);
+
+
+    @Headers({
+            "Accept: */* ",
+            "User-Agent: Retrofit-App",
+            "content-type: application/json"
+    })
+    @GET("admin/containers")
+    Call<List<Container>> getAllContainerLocations(@Header("x-access-token") String token);
+
+    //Post request for adding new container location in DB
+    @Headers({
+            "Accept: */* ",
+            "User-Agent: Retrofit-App",
+            "content-type: application/json"
+    })
+    @PUT("admin/containers/{id}")
+    Call<ResponseBody> editContainerLocation(@Header("x-access-token") String token, @Path(value="id", encoded=true) String id, @Body Container container);
 
 
 

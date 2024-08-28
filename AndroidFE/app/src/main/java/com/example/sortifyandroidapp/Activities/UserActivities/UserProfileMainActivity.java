@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import com.example.sortifyandroidapp.Activities.ContainerMapActivity;
+import com.example.sortifyandroidapp.Activities.ContainersMapActivity;
 import com.example.sortifyandroidapp.Activities.ScanProductActivity;
 import com.example.sortifyandroidapp.R;
 import org.json.JSONException;
@@ -84,10 +84,11 @@ public class UserProfileMainActivity extends AppCompatActivity {
             }
         });
 
+
         mapBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent mapIntent = new Intent(UserProfileMainActivity.this, ContainerMapActivity.class);
+                Intent mapIntent = new Intent(UserProfileMainActivity.this, ContainersMapActivity.class);
                 startActivity(mapIntent);
             }
         });

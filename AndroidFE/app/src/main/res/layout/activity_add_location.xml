@@ -16,7 +16,7 @@
         tools:ignore="SpeakableTextPresentCheck" />
 
     <Button
-        android:id="@+id/button_save"
+        android:id="@+id/buttonEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/spinner_types"
@@ -24,7 +24,48 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:text="@string/save" />
+        android:minHeight="50dip"
+        android:text="@string/Edit_container" />
 
+    <Button
+        android:id="@+id/buttonNext"
+        android:layout_width="179dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinner_types"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_toEndOf="@+id/buttonEdit"
+        android:maxHeight="50dip"
+        android:minHeight="50dip"
+        android:text="@string/save_changes" />
+
+
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="503dp"
+        android:layout_below="@id/buttonEdit"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="82dp"
+        android:layout_marginBottom="0dp" />
+
+    <Switch
+        android:id="@+id/ToggleBtn"
+        android:layout_width="389dp"
+        android:layout_height="70dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="153dp"
+        android:layout_marginEnd="2dp"
+        android:text="@string/all_containers_inactive_active_containers" />
 
 </RelativeLayout>

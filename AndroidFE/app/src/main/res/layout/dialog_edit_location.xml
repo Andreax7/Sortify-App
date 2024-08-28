@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="250dp"
+    android:background="@drawable/background5"
+    android:baselineAligned="true"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp"
+    app:layout_constrainedHeight="false">
+
+    <Spinner
+        android:id="@+id/spinner_edit_types"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <Switch
+        android:id="@+id/switch_edit_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:minHeight="48dp"
+        android:text="@string/inactive_active"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/contanerType"
+        android:layout_width="379dp"
+        android:layout_height="43dp"
+        android:fontFamily="sans-serif-black"
+        android:textAlignment="center"
+        android:textSize="18sp" />
+
+</LinearLayout>

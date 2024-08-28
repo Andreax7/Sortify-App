@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/backgroundcontainer"
+    tools:context=".Activities.AdminActivities.AddLocationActivity">
+
+    <Spinner
+        android:id="@+id/spinner_types"
+        android:layout_width="395dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="#56F4EEEE"
+        android:contextClickable="true"
+        android:visibility="visible"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="672dp"
+        android:layout_below="@+id/spinner_types"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="-5dp"
+        android:layout_marginBottom="0dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/showAllMarkersBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="97dp"
+        android:clickable="true"
+        android:src="@android:drawable/ic_menu_view"
+        app:backgroundTint="#E871E47D" />
+
+</RelativeLayout>

@@ -14,6 +14,7 @@ public class TrashType extends Throwable implements Serializable {
     private TrashType(){
 
     }
+
     public TrashType(Integer typeId, String typeName, String info) {
         this.typeId = typeId;
         this.typeName = typeName;
@@ -23,5 +24,9 @@ public class TrashType extends Throwable implements Serializable {
     public TrashType(String typeName, String info) {
         this.typeName = typeName;
         this.info = info;
+    }
+
+    public Integer getTypeId() {
+        return typeId;
     }
 }

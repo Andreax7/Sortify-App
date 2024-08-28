@@ -20,12 +20,14 @@ import com.example.sortifyandroidapp.Adapters.AllUsersFAdapter;
 import com.example.sortifyandroidapp.Connection;
 import com.example.sortifyandroidapp.Endpoints.InterfaceAdminAPIService;
 
+import com.example.sortifyandroidapp.Listeners.UserClickListener;
 import com.example.sortifyandroidapp.Models.User;
 import com.example.sortifyandroidapp.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,7 +38,7 @@ import retrofit2.Retrofit;
 // * Use the {@link FragmentAllUsersList#newInstance} factory method to
 // * create an instance of this fragment.
 // */
-public class FragmentAllUsersList extends Fragment{
+public class FragmentAllUsersList extends Fragment implements UserClickListener {
 
     private RecyclerView allUsersRecycler;
     private AllUsersFAdapter userAdapter;
@@ -45,7 +47,6 @@ public class FragmentAllUsersList extends Fragment{
     // gets the connection and creates an instance for retrofit endpoint api class
     Retrofit retrofit = Connection.getClient();
     InterfaceAdminAPIService adminAPIService = retrofit.create(InterfaceAdminAPIService.class);
-
 
     public FragmentAllUsersList() {
         // Required empty public constructor
@@ -78,8 +79,7 @@ public class FragmentAllUsersList extends Fragment{
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_all_users_list, container, false);
-
-        AllUsersFAdapter userAdapter = new AllUsersFAdapter(allUsers);
+        AllUsersFAdapter userAdapter = new AllUsersFAdapter(allUsers, this); // Assuming 'this' implements UserClickListener
         allUsersRecycler = view.findViewById(R.id.allUsersRecyclerView);
         allUsersRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         allUsersRecycler.setAdapter(userAdapter);
@@ -112,7 +112,7 @@ public class FragmentAllUsersList extends Fragment{
                 else{
                     allUsers = response.body();
                     //initRecyclerView(view);
-                    userAdapter = new AllUsersFAdapter(allUsers);
+                    userAdapter = new AllUsersFAdapter(allUsers); // Assuming 'this' implements UserClickListener
                     //LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
                     //allUsersRecycler.setLayoutManager(layoutManager);
                     allUsersRecycler.setAdapter(userAdapter);
@@ -122,6 +122,57 @@ public class FragmentAllUsersList extends Fragment{
             @Override
             public void onFailure(@NonNull Call<List<User>> call, @NonNull Throwable throwable) {
                 Toast.makeText(getActivity(), throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    @Override
+    public void onUserRoleChanged(User user) {
+        SharedPreferences sharedPrefs = getActivity().getSharedPreferences("token", Context.MODE_PRIVATE);
+        String jwt = sharedPrefs.getString("x-access-token", "");
+
+        // calling a method to change user data
+        Call<ResponseBody> call = adminAPIService.changeUserRole(jwt, user.getUserId(), user.getRole());
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.code()==400){
+                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getContext(), "Data successfully changed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onUserStatusChanged(User user) {
+
+        SharedPreferences sharedPrefs = getActivity().getSharedPreferences("token", Context.MODE_PRIVATE);
+        String jwt = sharedPrefs.getString("x-access-token", "");
+        // calling a method to change user data
+        Call<ResponseBody> call = adminAPIService.changeUserStatus(jwt, user.getUserId(), user.getActive());
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if(response.code()==400){
+                    Toast.makeText(getContext(), response.message(), Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getContext(), "Data successfully changed", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
             }
         });
 

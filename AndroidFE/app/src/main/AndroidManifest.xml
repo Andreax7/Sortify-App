@@ -6,9 +6,13 @@
          Google Maps Android API v2, but you must specify either coarse or fine
          location permissions for the "MyLocation" functionality.
     -->
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /><!-- Required only when requesting background location access on Android 10 (API level 29) -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-feature android:name="android.hardware.location.gps" />
+    <uses-feature android:name="android.hardware.location.network" />
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature android:name="android.hardware.camera.any" />
@@ -28,11 +32,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SortifyAndroidApp"
         android:usesCleartextTraffic="true">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/my_map_api_key" />
+
         <activity
             android:name=".Activities.AdminActivities.AddLocationActivity"
             android:exported="true" />
         <!-- Other meta-data and activities -->
-      
+
         <activity
             android:name=".Activities.UserActivities.UserStatisticsActivity"
             android:exported="true" />
@@ -73,9 +82,6 @@
             android:name=".Activities.AdminActivities.AllUsersActivity"
             android:exported="true" />
         <activity
-            android:name=".Activities.AdminActivities.AboutUserActivity"
-            android:exported="true" />
-        <activity
             android:name=".Activities.UserActivities.SupportActivity"
             android:exported="true" />
         <activity
@@ -91,9 +97,13 @@
             android:exported="true"
             android:parentActivityName=".Activities.MainActivity" />
         <activity
-            android:name=".Activities.ContainerMapActivity"
+            android:name=".Activities.ContainersMapActivity"
             android:exported="true"
             android:parentActivityName=".Activities.UserActivities.UserProfileMainActivity" />
+        <activity
+            android:name=".Activities.ScanProductActivity"
+            android:exported="true"
+            />
         <activity
             android:name=".Activities.AdminActivities.AdminProfileActivity"
             android:exported="true"
@@ -108,7 +118,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activities.AdminActivities.CaptureAct"
+            android:name=".Activities.CaptureAct"
             android:screenOrientation="landscape"
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme" />

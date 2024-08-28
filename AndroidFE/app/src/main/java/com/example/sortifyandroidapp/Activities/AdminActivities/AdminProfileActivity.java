@@ -24,6 +24,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.sortifyandroidapp.Activities.ContainersMapActivity;
+import com.example.sortifyandroidapp.Activities.ScanProductActivity;
 import com.example.sortifyandroidapp.Activities.UserActivities.UserDataActivity;
 import com.example.sortifyandroidapp.Adapters.ProductsAdapter;
 import com.example.sortifyandroidapp.Adapters.TrashTypeAdapter;
@@ -133,6 +135,11 @@ public class AdminProfileActivity extends AppCompatActivity {
                     startActivity(productsIntent);
                 });
 
+                mapBtn.setOnClickListener(view -> {
+                    Intent mapIntent = new Intent(AdminProfileActivity.this, ContainersMapActivity.class);
+                    startActivity(mapIntent);
+                });
+
                 containersBtn.setOnClickListener(view -> {
                     Intent containersIntent = new Intent(AdminProfileActivity.this, AddLocationActivity.class);
                     startActivity(containersIntent);
@@ -142,8 +149,9 @@ public class AdminProfileActivity extends AppCompatActivity {
                 scanBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-
-                        scanCode();
+                        Intent scanIntent = new Intent(AdminProfileActivity.this, ScanProductActivity.class);
+                        startActivity(scanIntent);
+                     //   scanCode();
 
                     }
                 });
@@ -155,20 +163,21 @@ public class AdminProfileActivity extends AppCompatActivity {
     * */
     }
 
-    private void scanCode() {
+  /*  private void scanCode() {
 
         ScanOptions options = new ScanOptions();
         options.setPrompt("Volume up to flash on");
         options.setBeepEnabled(true);
         options.setOrientationLocked(true);
         options.setCaptureActivity(CaptureAct.class);
+
         barLauncher.launch(options);
     }
-
 
     //retrieving data after camera capture
     ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result ->
     {
+        Log.d(TAG, "----HERE: " + result.getContents());
         if(result.getContents() != null){
             AlertDialog.Builder bulider = new AlertDialog.Builder(AdminProfileActivity.this);
             bulider.setTitle("result");
@@ -182,7 +191,7 @@ public class AdminProfileActivity extends AppCompatActivity {
             }).show();
         }
     });
-
+*/
     /** Check if this device has a camera */
     /*private boolean checkCameraHardware(Context context) {
         if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
