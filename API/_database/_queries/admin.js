@@ -8,8 +8,10 @@ function getProductByName(pName) {
             WHERE productName = ?`,
       [parseInt(pName)],
       (err, rows) => {
-          if (err) reject(err)
-          result.push(rows)
+          if (err){
+             reject(err)
+          }
+            resolve("Successfully added")
       },
       () => { resolve(result) }
     );
@@ -17,14 +19,14 @@ function getProductByName(pName) {
 }
 function addNewProduct(body){
   return new Promise((resolve, reject) => {
-    let result = []
-    db.run(`INSERT INTO products (barcode, productName, image, details, typeId, confirmed) VALUES (?, ?, ?, ?, ?, ?);`,
-          [body.barcode, body.productName, body.image, body.details, body.typeId, 1], 
+    db.run(`INSERT INTO products (barcode, productName, image, details, typeId) VALUES (?, ?, ?, ?, ?);`,
+          [body.barcode, body.productName, body.image, body.details, body.typeId], 
           (err, rows) => {
-                          if(err) { reject(err) }
-                          result.push(rows)
-            },
-          () => { resolve(body.productName + " successfully added") }
+            if (err){
+                reject(err)
+            }
+            resolve("Successfully added")
+        }
     )
   })
 }
@@ -32,9 +34,9 @@ function addNewProduct(body){
 function removeProduct(productId){
   return new Promise((resolve, reject)=> {
     db.run(`DELETE FROM products WHERE productId = ?`,
-        parseInt(productId),
+        productId,
         (err, result) => {
-          console.log(result,err)
+          console.log('delete product '+ productId)
             if (err) {
                 reject(err)
             }
@@ -51,24 +53,25 @@ function updateProduct(body, id){
               WHERE productId = ?`,
       [body.productName, body.confirmed, parseInt(body.typeId), body.details, body.barcode, parseInt(id)],
       (err, result) => {
-          if (err) reject(err)
-          resolve(body.productName +" successfully updated")
-      }
+            if (err) {
+                reject(err)
+            }
+            resolve("Successfully updated")
+        }
     );
   })
 }
 
 function addNewType(body){
   return new Promise((resolve, reject) => {
-    let result = []
     db.run(`INSERT INTO types (typeName, info) VALUES (?, ?);`,
           [body.typeName, body.info], 
-          (err, rows) => {
-            console.log(rows)
-                if(err) { reject(err) }
-                result.push(rows)
-            },
-          () => { resolve(body.typeName + " successfully added") }
+          (err, result) => {
+              if (err){
+                  reject(err)
+              }
+              resolve("Successfully added")
+          }
     )
   })
 }
@@ -87,6 +90,20 @@ function removeTrashType(typeId){
   })
 }
 
+function removeProductsOfDeletedType(typeId){
+  return new Promise((resolve, reject)=> {
+    db.run(`DELETE FROM products WHERE typeId = ?`,
+        typeId,
+        (err, result) => {
+            if (err) {
+                reject(err)
+            }
+            resolve("Successfully deleted")
+        }
+    )
+  })
+}
+
 function updateTrashType(body, id){
   return new Promise((resolve, reject) => {
     db.run(`UPDATE types 
@@ -94,8 +111,10 @@ function updateTrashType(body, id){
             WHERE typeId = ?`,
             [body.typeName, body.info, parseInt(id)],
             function (err, result) {
-                if (err) reject(err)
-                resolve(body.typeName +" successfully updated")
+              if (err) {
+                reject(err)
+            }
+            resolve("Successfully updated")
               }
     );
   })
@@ -167,7 +186,7 @@ function userReq(fid){
       [parseInt(fid)],
       (err, result) => {
           if (err) reject(err)
-          resolve(body.productName +"successfully updated")
+          resolve(result)
       }
     );
   })
@@ -187,46 +206,57 @@ function updateUserRequest(seen,fid) {
 }
 
 function addContainer(body){
-    return new Promise((resolve, reject) => {
-      let result = []
-      db.run(`INSERT INTO containers (location, active, typeId) VALUES (?, ?, ?);`,
-            [body.location, 1, body.typeId], 
-            (err, rows) => {
-              console.log(rows)
-                  if(err) { reject(err) }
-                  result.push(rows)
-              },
-            () => { resolve("container " + body.location + " successfully added") }
-      )
-    })
-}
+  result = []
+  return new Promise((resolve, reject) => {
+    db.run(`INSERT INTO containers (longitude, latitude, active, typeId) VALUES (?, ?, ?, ?);`,
+      [body.longitude ,body.latitude, 1, body.typeId],  
+          (err, rows) => {
 
+            console.log(rows)
+            if(err) { reject(err) }
+            
+            result.push(rows)
+          
+            resolve("Successfully added")
+        }
+    )
+  })
+  
+}
 function AllContainerLocations() {
   return new Promise((resolve, reject) => {
-    let result = []
-    db.each(`SELECT * FROM containers ;`, (err, rows) => {
-      if(err){ reject(err) }
-      result.push(rows) 
-    }, () => {
-      resolve(result)
-    })
-  }) 
+    let result = [];
+    db.all(`SELECT * FROM containers;`, (err, rows) => {
+      if (err) {
+        reject(err); // Reject the promise with the error
+      } else {
+        result = rows; // Directly assign the rows to result
+        resolve(result); // Resolve the promise with the result
+      }
+    });
+  });
 }
+
 
 function updateContainer(body,cid) {
   return new Promise((resolve, reject) => {
-    db.run(`UPDATE containers 
-            SET active = ?, location = ?, typeId = ?
-            WHERE containerId = ?`,
-    [parseInt(body.active), body.location, parseInt(body.typeId), parseInt(cid)],
-    (err, result) => {
-        if (err) reject(err)
-        resolve(fid + " user successfully updated")
+    db.run(
+      `UPDATE containers 
+       SET longitude = ?, latitude = ?, active = ?, typeId = ? 
+       WHERE containerId = ?;`,
+      [body.longitude, body.latitude, body.active, body.typeId, parseInt(cid)],
+      function (err) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve({ message: 'Update successful', changes: cid });
+        }
       }
     );
-  })
+  });
 }
 
+/*
 function deactivateContainer(cid){
   return new Promise((resolve, reject) => {
     db.run(`UPDATE containers 
@@ -239,7 +269,7 @@ function deactivateContainer(cid){
       }
     );
   })
-}
+}*/
 
 function addOccupancy(cid, state, date){
   return new Promise((resolve, reject) => {
@@ -313,25 +343,42 @@ function getContainer(cid){
     })  
 }
 
+function filterContainer(tid){
+  return new Promise((resolve, reject) => {
+    let result = []
+    db.all(`SELECT * FROM containers 
+            WHERE typeId=? ;`, [tid],
+            (err, rows) => {
+              if(err){ reject(err) }
+              result.push(rows) 
+            }, () => {
+              resolve(result)
+    })
+  })  
+}
+
 module.exports = {
   getProductByName,
   addNewProduct,
   removeProduct,
   updateProduct,
+  removeProductsOfDeletedType,
   addNewType,
   removeTrashType,
   updateTrashType, 
   AllUsers,
+
   setUserAdmin,
   changeProfileActivity,
+  
   AllUserRequests,
   userReq,
   updateUserRequest,
   addContainer,
   AllContainerLocations,
   getContainer,
+  filterContainer,
   updateContainer,
-  deactivateContainer,
   addOccupancy,
   getContainerOccupancy,
   updateContainerOccupancy,

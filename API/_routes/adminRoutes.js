@@ -17,7 +17,12 @@ router.post('/type/add', auth.authenticateToken, async (req, res) =>{
             let name = allTypes.find( el => el.typeName === req.body.typeName )
             if(name === undefined){
                 DBresponse = await admin.addNewType(req.body).then((res)=> {return res})
-                return res.status(201).json(DBresponse)
+                if(DBresponse==="Successfully added"){
+                    const newTypeArr = await users.getAllTrashTypes().then((res)=> {return res})
+                    return res.status(201).json(newTypeArr)
+                }
+                else return res.status(400).json("Something went wrong")
+                    
             }
             else res.status(400).json({ "error": 'This type exists' })
         }
@@ -37,7 +42,10 @@ router.delete("/type/:id", auth.authenticateToken, async (req, res) => {
             let id = allTypes.find( el => el.typeId === parseInt(req.params.id) )
             if(id !== undefined){
                 DBresponse = await admin.removeTrashType(req.params.id).then((res)=> {return res})
-                return res.status(201).json(DBresponse)
+                //CASCADE DELETE
+                productsOfDeletedType = await admin.removeProductsOfDeletedType(req.params.id).then((res)=> {return res})
+                const newTypes = await users.getAllTrashTypes().then((res)=> {return res})
+                return res.status(201).json(newTypes)
             }
             else res.status(400).json({ "error": 'This type does not exists' })
         }
@@ -59,7 +67,8 @@ router.put("/type/:id", auth.authenticateToken, async (req, res) => {
                     return res.status(400).json({ "error": 'Empty fields' })
                 }
                 DBresponse = await admin.updateTrashType(req.body, req.params.id).then((res)=> {return res})
-                return res.status(201).json(DBresponse)
+                const newTypes = await users.getAllTrashTypes().then((res)=> {return res})
+                return res.status(201).json(newTypes)
             }
             else res.status(400).json({ "error": 'This type does not exists' })
         }
@@ -71,10 +80,9 @@ router.put("/type/:id", auth.authenticateToken, async (req, res) => {
        
 });
 
-router.post('/product/add', auth.authenticateToken, async (req, res) =>{
+/*router.post('/product/add', auth.authenticateToken, async (req, res) =>{
     try{
         const userObj = req.token
-        //console.log(userObj)
         if(userObj.role === 1){
             if(req.body.barcode === undefined || req.body.productName === undefined || req.body.details === undefined || req.body.typeId === undefined ) {
                 return res.status(400).json({ "error": 'Empty fields' }) 
@@ -82,17 +90,65 @@ router.post('/product/add', auth.authenticateToken, async (req, res) =>{
             else if(req.body.barcode === "" || req.body.productName === "" || req.body.details === "" || req.body.typeId === "" ) {
                 return res.status(400).json({ "error": 'Empty fields' }) 
             }
+           
             const allProducts = await users.getAllProducts().then((res)=> {return res})
-            let name = allProducts.find( el => el.productName === req.body.productName )
-            if(name === undefined){
-                DBresponse = await admin.addNewProduct(req.body).then((res)=> {return res})
-                return res.status(201).json(DBresponse)
+            if(allProducts.length !== 0){
+                let name = allProducts.find( el => el.productName === req.body.productName )
+                    // console.log(name)
+                    if(name !== undefined){
+                        return res.status(400).json({ "error": 'This product exists' })
+                    }       
             }
-            else res.status(400).json({ "error": 'This product exists' })
+                DBresponse = await admin.addNewProduct(req.body).then((res)=> {return res})
+                console.log(DBresponse, DBresponse==="Successfully added")
+                if(DBresponse==="Successfully added"){
+                    const refreshedListOfProducts = await users.getAllProducts().then((res)=> {return res})
+                        return res.status(201).json(refreshedListOfProducts)
+                 }
+                else return res.status(400).json("Something went wrong")
+            
+           
         }
         else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })     
     }
     catch (err){
+        console.log(err.message);
+        res.status(400).send('something went wrong!');
+    }
+});*/
+
+router.post('/product/add', auth.authenticateToken, async (req, res) => {
+    try {
+        const userObj = req.token;
+
+        // Log the incoming request body
+       // console.log("Incoming data:", req.body);
+
+        if (userObj.role === 1) {
+            const { barcode, productName, details, typeId, image } = req.body;
+
+            if (!barcode || !productName || !details || !typeId || !image) {
+                return res.status(400).json({ "error": 'Empty fields' });
+            }
+
+            const allProducts = await users.getAllProducts();
+            if (allProducts.some(product => product.productName === productName)) {
+                return res.status(400).json({ "error": 'This product exists' });
+            }
+
+            const DBresponse = await admin.addNewProduct(req.body);
+            console.log(DBresponse);
+            if (DBresponse === "Successfully added") {
+                const refreshedListOfProducts = await users.getAllProducts();
+                console.log(refreshedListOfProducts.length)
+                return res.status(201).json(refreshedListOfProducts);
+            } else {
+                return res.status(400).json("Something went wrong");
+            }
+        } else {
+            res.status(403).json({ "FORBIDDEN": 'Unauthorized' });
+        }
+    } catch (err) {
         console.log(err.message);
         res.status(400).send('something went wrong!');
     }
@@ -110,7 +166,10 @@ router.put("/product/:id", auth.authenticateToken, async (req, res) => {
                     return res.status(400).json({ "error": 'Empty fields' })
                 }
                 DBresponse = await admin.updateProduct(req.body, req.params.id).then((res)=> {return res})
-                return res.status(201).json(DBresponse)
+                if(DBresponse=="Successfully updated"){
+                    return res.status(201).json(allProducts)
+                }
+                
             }
             else res.status(400).json({ "error": 'This type does not exists' })
         }
@@ -125,12 +184,15 @@ router.put("/product/:id", auth.authenticateToken, async (req, res) => {
 router.delete("/product/:id", auth.authenticateToken, async (req, res) => {
     try{
         const userObj = req.token
+        const allProducts = await users.getAllProducts().then((res)=> {return res})
         if(userObj.role === 1){
-            const allProducts = await users.getAllProducts().then((res)=> {return res})
             let id = allProducts.find( el => el.productId === parseInt(req.params.id) )
             if(id !== undefined){
-                DBresponse = await admin.removeProduct(req.params.id).then((res)=> {return res})
-                return res.status(201).json(DBresponse)
+                DBresponse = await admin.removeProduct(parseInt(req.params.id)).then((res)=> {return res})
+                if(DBresponse==="Successfully deleted"){
+                    const allProductsnew = await users.getAllProducts().then((res)=> {return res})
+                    return res.status(201).json(allProductsnew)
+                }
             }
             else res.status(400).json({ "error": 'This product does not exists' })
         }
@@ -158,6 +220,8 @@ router.get('/users', auth.authenticateToken, async (req, res) =>{
     }
 });
 
+
+//activate & deactivate users profile or set/ unset user as admin
 router.put('/users/:uid', auth.authenticateToken, async (req, res) =>{
     try{
         const userObj = req.token
@@ -177,7 +241,6 @@ router.put('/users/:uid', auth.authenticateToken, async (req, res) =>{
                     const DBresponse = await admin.changeProfileActivity(parseInt(req.body.active),parseInt(req.params.uid)).then((res)=> {return res})
                     return res.status(201).json(DBresponse)
                 }
-                    
             }
         }
         else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
@@ -208,7 +271,7 @@ router.get('/users/requests', auth.authenticateToken, async (req, res) =>{
 
 router.get('/users/requests/:id', auth.authenticateToken, async (req, res) =>{
     try{
-        const userObj = req.token
+       // const userObj = req.token
         if(userObj.role === 1){
             const userRequests = await admin.userReq(req.params.id).then((res)=> {return res})
             console.log(userRequests)
@@ -224,12 +287,12 @@ router.get('/users/requests/:id', auth.authenticateToken, async (req, res) =>{
 
 router.put('/users/requests/:id', auth.authenticateToken, async (req, res) =>{
     try{
-        const userObj = req.token
+        //const userObj = req.token
         if(userObj.role === 1){
             if(req.body.seen !== undefined || req.body.seen !== "" ){
-                const userRequests = await admin.updateUserRequest(parseInt(req.body.seen), req.params.id).then((res)=> {return res})
-                console.log(userRequests)
-                res.status(201).json(userRequests);
+                const userRequest = await admin.updateUserRequest(parseInt(req.body.seen), req.params.id).then((res)=> {return res})
+                console.log(userRequest)
+                res.status(201).json(userRequest);
             }
             else res.status(403).json({ "Error": 'seen parameter not given' })
         }
@@ -259,14 +322,16 @@ router.get('/containers', auth.authenticateToken, async (req, res) =>{
     }
 });
 
+
+//  Filter containers by type
 router.get('/containers/:id', auth.authenticateToken, async (req, res) =>{
     try{
         const userObj = req.token
         if(userObj.role === 1){
-            const container = await admin.getContainer(parseInt(req.params.id)).then((res)=> {return res})
-            console.log(container)
+            const containers = await admin.filterContainer(parseInt(req.params.id)).then((res)=> {return res})
+            console.log(containers)
        // await user.save();
-            res.status(201).json(container);
+            res.status(201).json(containers);
         }
         else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
     }
@@ -279,67 +344,43 @@ router.get('/containers/:id', auth.authenticateToken, async (req, res) =>{
 router.post('/locations/add', auth.authenticateToken, async (req, res) =>{
     try{
         const userObj = req.token
-        //console.log(userObj)
         if(userObj.role === 1){
-            if(req.body.typeId === undefined || req.body.location === undefined || req.body.active === undefined ) {
+           // console.log(req.body)
+            if(req.body.typeId === undefined || req.body.latitude === undefined || req.body.longitude === undefined ) {
                 return res.status(400).json({ "error": 'Empty fields' }) 
             }
-            else if(req.body.barcode === "" || req.body.productName === "" || req.body.details === "" || req.body.typeId === "" ) {
+            else if(req.body.typeId === "" || req.body.latitude === "" || req.body.longitude === "" ) {
                 return res.status(400).json({ "error": 'Empty fields' }) 
             }
             const locations = await admin.AllContainerLocations().then((res)=> {return res})
-            let name = locations.find( el => el.productName === req.body.productName )
+            let name = locations.find( el => {
+                    return el.latitude === req.body.latitude && el.longitude ===req.body.longitude
+                })
             if(name === undefined){
-                DBresponse =  await admin.addContainer(body).then((res)=> {return res})
-                return res.status(201).json(DBresponse)
+                DBresponse =  await admin.addContainer(req.body).then((res)=> {return res})
+            return res.status(201).json(name)
             }
-            else res.status(400).json({ "error": 'This product exists' })
+            else res.status(400).json({ "error": 'Container on this location exists' })
         }
         else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })     
     }
     catch (err){
-        console.log(err.message);
+        console.log(err);
         res.status(400).send('something went wrong!');
     }
 });
 
+// update container
 router.put('/containers/:id', auth.authenticateToken, async (req, res) =>{
     try{
         const userObj = req.token
         if(userObj.role === 1){
             if(req.body.typeId !== undefined || req.body.typeId !== "" ){
-                const container = await admin.updateContainer(body,parseInt(req.params.id)).then((res)=> {return res})
-                console.log(container)
+                const container = await admin.updateContainer(req.body, parseInt(req.params.id)).then((res)=> {return res})
+                console.log('---------\n UPDATED CONTAINER \n ',container)
                 res.status(201).json(container);
             }
-            else res.status(403).json({ "Error": 'seen parameter not given' })
-        }
-        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
-    }
-    catch (err){
-        console.log(err.message);
-        res.status(400).send('something went wrong!');
-    }
-});
-
-router.put('/containers/deactivate/:id', auth.authenticateToken, async (req, res) =>{
-    try{
-        const userObj = req.token
-        if(userObj.role === 1){
-            if(req.body.typeId !== undefined || req.body.typeId !== "" ){
-                const container = await admin.getContainer(parseInt(req.params.id))
-                let findCount = container.find( el => el.containerId === parseInt(req.params.id) )
-                if(findCount === undefined){
-                    res.status(403).json({ "Error": 'container does not exist' })
-                }
-                else{
-                    const deactivate = await admin.deactivateContainer(parseInt(req.params.id)).then((res)=> {return res})
-                    console.log(deactivate)
-                    res.status(201).json(deactivate);
-                }
-                
-            }
-            else res.status(403).json({ "Error": 'seen parameter not given' })
+            else res.status(403).json({ "Error": 'type parameter not given' })
         }
         else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
     }

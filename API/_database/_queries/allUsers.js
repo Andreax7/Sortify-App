@@ -6,7 +6,7 @@ async function register(body, password, picture) {
     var data = [body.firstName, body.lastName, body.email, 0, 1, picture, password];
     db.run(sql, data, (err, rows) => {
       if (err) { reject(err) }
-      resolve({"name":body.firstName, "email": body.email, "password":password})
+      resolve({"email": body.email, "password":password})
     })
   })
 }
@@ -14,8 +14,11 @@ async function register(body, password, picture) {
 function getUserData(email){
   return new Promise((resolve, reject) => {
     let result = []
-    db.each(`SELECT * FROM users WHERE email = ? ;`, [email], (err, rows) => {
-      if(err){ reject(err) }
+  //  console.log('db ', email)
+    db.get(`SELECT * FROM users WHERE email = ? ;`, [email], (err, rows) => {
+      if(err){ 
+        reject(err)
+        console.log('err ', err) }
       else {
         result.push(rows)
       resolve(result[0])
@@ -23,37 +26,85 @@ function getUserData(email){
     })
   })
 }
+
+function updateUserData(body,uid){
+  return new Promise((resolve, reject) => {
+    db.run(`UPDATE users 
+            SET firstName = ?,
+              lastName = ?, 
+              email = ?,
+              picture = ?
+            WHERE userId = ?;`,
+    [body.firstName, body.lastName, body.email, body.picture, parseInt(uid)],
+    (err, result) => {
+        if (err) reject(err)
+        resolve('User updated')
+      }
+    );
+  })
+}
+
+function updatePassword(uid,password){
+  return new Promise((resolve, reject) => {
+    db.run(`UPDATE users 
+            SET password = ?
+            WHERE userId = ?;`,
+    [password, parseInt(uid)],
+    (err, result) => {
+        if (err) reject(err)
+        resolve("password updated")
+      }
+    );
+  })
+
+}
+
 function getAllTrashTypes() {
   return new Promise((resolve, reject) => {
     let result = []
     db.each(`SELECT * FROM types;`, (err, rows) => {
       if(err) { reject(err) }
       result.push(rows)
-    }, () => {
       resolve(result)
     })
   })
 }
 
+
+const getAllProducts = () => {
+  return new Promise((resolve, reject) => {
+      db.all('SELECT * FROM products', [], (err, rows) => {
+          if (err) {
+              console.error('Error retrieving products from database:', err.message);
+              reject(err);
+          } else {
+              resolve(rows);
+          }
+      });
+  });
+};
+/*
 function getAllProducts() {
   return new Promise((resolve, reject) => {
     let result = []
     db.each(`SELECT * FROM products;`, (err, rows) => {
       if(err) { reject(err) }
-      result.push(rows)
-    }, () => {
+      
+      if(rows !== undefined ){
+          result.push(rows)
+      } 
       resolve(result)
-    })
+    }, 
+  )
   })
-}
+}*/
 
 function scanProduct(barcode) {
   return new Promise((resolve, reject) => {
     let result = []
-    db.run(`SELECT * FROM products WHERE barcode = ? ;`, [barcode], (err, rows) => {
+    db.get(`SELECT * FROM products WHERE barcode = ? ;`, [barcode], (err, rows) => {
       if(err) { reject(err) }
       result.push(rows)
-    }, () => {
       resolve(result)
     })
   })
@@ -63,7 +114,7 @@ function scanProduct(barcode) {
 function getProduct(pid) {
   return new Promise((resolve, reject) => {
     let result = []
-    db.run(`SELECT * FROM products WHERE productId = ? ;`, [pid], (err, rows) => {
+    db.get(`SELECT * FROM products WHERE productId = ? ;`, [pid], (err, rows) => {
       if(err){ reject(err) }
       else {
         result.push(rows)
@@ -77,7 +128,7 @@ function getProduct(pid) {
 function productsByType(tid) {
   return new Promise((resolve, reject) => {
     let result = []
-    db.each(`SELECT * FROM products WHERE typeId = ? ;`, [tid], (err, rows) => {
+    db.get(`SELECT * FROM products WHERE typeId = ? ;`, [tid], (err, rows) => {
       if(err){ reject(err) }
       else {
         result.push(rows)
@@ -143,14 +194,17 @@ function getContainerLocationsByType(typeId) {
 
 function getContainerLocations() {
   return new Promise((resolve, reject) => {
-    let result = []
-    db.each(`SELECT * FROM containers WHERE active = ?;`, [1], (err, rows) => {
-      if(err){ reject(err) }
-      else {
-        result.push(rows)
-      resolve(result)
+    console.log('Querying containers with active = 1');
+    db.all(`SELECT * FROM containers WHERE active = ?;`, [1], (err, rows) => {
+      if(err){ 
+        console.log('Error during query:', err);
+        reject(err);
       }
-    })
+      else {
+        console.log('Fetched rows:', rows);
+        resolve(rows);
+      }
+    });
   })
 }
 
@@ -186,6 +240,8 @@ function throwTrash(uid, body) {
 module.exports = {
   register,
   getUserData, 
+  updateUserData,
+  updatePassword,
   getAllTrashTypes,
   getAllProducts,
   scanProduct,
