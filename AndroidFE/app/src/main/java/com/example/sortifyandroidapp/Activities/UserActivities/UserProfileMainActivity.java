@@ -3,14 +3,18 @@ import static android.content.ContentValues.TAG;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.sortifyandroidapp.Activities.ContainersMapActivity;
 import com.example.sortifyandroidapp.Activities.ScanProductActivity;
+import com.example.sortifyandroidapp.Activities.StatisticsActivity;
 import com.example.sortifyandroidapp.R;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +33,7 @@ public class UserProfileMainActivity extends AppCompatActivity {
     Button logoutBtn, myAccountBtn, supportBtn, mapBtn, scanBtn, productsBtn, recycleBtn, statisticsBtn ;
     TextView nameTextView;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,7 +101,8 @@ public class UserProfileMainActivity extends AppCompatActivity {
         scanBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent scanProductIntent = new Intent(UserProfileMainActivity.this, ScanProductActivity.class);
+                startActivity(scanProductIntent);
             }
         });
 
@@ -119,12 +125,13 @@ public class UserProfileMainActivity extends AppCompatActivity {
         statisticsBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent statisticsIntent = new Intent(UserProfileMainActivity.this, ScanProductActivity.class);
+                Intent statisticsIntent = new Intent(UserProfileMainActivity.this, StatisticsActivity.class);
                 startActivity(statisticsIntent);
             }
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private JSONObject decodeToken(String token) throws JSONException {
         Base64.Decoder decoder = Base64.getUrlDecoder();
         String[] tokenParts = token.split("\\.");

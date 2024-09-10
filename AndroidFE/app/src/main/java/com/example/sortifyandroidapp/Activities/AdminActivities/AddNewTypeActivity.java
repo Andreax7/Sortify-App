@@ -38,8 +38,6 @@ public class AddNewTypeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.popup_add_new_type);
 
-        //Intent previousActivityIntent = getIntent();
-
         typeName = findViewById(R.id.typeNameText);
         typeInfo = findViewById(R.id.typeInfoText);
         saveBtn = findViewById(R.id.saveTypeBtn);
@@ -67,9 +65,7 @@ public class AddNewTypeActivity extends AppCompatActivity {
         InterfaceAdminAPIService APIService = retrofit.create(InterfaceAdminAPIService.class);
         SharedPreferences sharedPrefs = getSharedPreferences("token", Context.MODE_PRIVATE);
         String jwt = sharedPrefs.getString("x-access-token", "");
-        //Toast.makeText(AddNewTypeActivity.this, newTrash.typeName, Toast.LENGTH_SHORT).show();
-
-        // calling a method to signup and passing user class
+       // calling a method to signup and passing user class
         Call<List<TrashType>> call = APIService.addNewTrashType(jwt,newTrash);
         call.enqueue(new Callback<List<TrashType>>() {
             @Override

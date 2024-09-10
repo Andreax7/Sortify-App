@@ -6,6 +6,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -30,6 +32,7 @@ import com.example.sortifyandroidapp.Endpoints.InterfaceAdminAPIService;
 import com.example.sortifyandroidapp.Endpoints.InterfaceIPEmulator;
 import com.example.sortifyandroidapp.Endpoints.InterfaceIPMoto;
 import com.example.sortifyandroidapp.Endpoints.InterfaceUserAPIService;
+import com.example.sortifyandroidapp.Listeners.StreetNameListener;
 import com.example.sortifyandroidapp.MapInterface;
 import com.example.sortifyandroidapp.Models.Container;
 import com.example.sortifyandroidapp.Models.ContainerLocation;
@@ -45,8 +48,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -64,12 +69,12 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
     private GoogleMap gMap;
     private Spinner spinnerTypes;
     FloatingActionButton showAllMarkersBtn;
-    private ArrayList<String> trashTypeNames = new ArrayList<>(); // Initialize the ArrayList for Spinner
-    private ArrayList<TrashType> trashTypeList = new ArrayList<>(); // Initialize the ArrayList for Spinner
-    private ArrayList<Container> containersFromAPIArray = new ArrayList<>(); // Initialize the ArrayList for storing data from API
+    private ArrayList<String> trashTypeNames = new ArrayList<>();
+    private ArrayList<TrashType> trashTypeList = new ArrayList<>();
+    private ArrayList<Container> containersFromAPIArray = new ArrayList<>();
     private Marker myLocationMarker;
 
-    private boolean isSpinnerInitialSelection = true; // Flag variable for Spinner (when nothing is selected)
+    private boolean isSpinnerInitialSelection = true;
 
     private static final int REQUEST_LOCATION = 1;
     LocationManager locationManager;
@@ -85,21 +90,19 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
 
         spinnerTypes = findViewById(R.id.spinner_types);
         showAllMarkersBtn = findViewById(R.id.showAllMarkersBtn);
-        // Initialize the location manager
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         getTypesFromDB();
         getAllLocations();
 
-        // Initialize map
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
 
-        setupSpinnerListener(); // Set up the spinner listener to filter markers
+        setupSpinnerListener();
 
-        // OnClickListener to show all markers
         showAllMarkersBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,12 +118,10 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
     public void onMapReady(@NonNull GoogleMap googleMap) {
         gMap = googleMap;
 
-        // Enable user location
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-
-        // RIGHT BUTTON LOCATION FUNCTIONALITY
+        Log.d(TAG, "-------onMapReady: ");
         gMap.setMyLocationEnabled(true);
         gMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
            @Override
@@ -131,11 +132,10 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
            }
         });
 
-
         getDeviceLocation(new MapInterface() {
             @Override
             public void onLocationAvailable(LatLng location) {
-                // Add marker for user's location
+
                 LatLng myLocation = new LatLng(43.52328, 16.45060);
                 myLocationMarker = gMap.addMarker(new MarkerOptions().position(myLocation).title("You are here"));
                 gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation,  15.0f));
@@ -154,20 +154,18 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
 
                 if (isSpinnerInitialSelection) {
                     addMarkersToMap(containersFromAPIArray);
-                    isSpinnerInitialSelection = false; // Set flag to false after the initial selection
-                    return; // Ignore the first call to onItemSelected
+                    isSpinnerInitialSelection = false;
+                    return;
                 }
 
                 Integer selectedType = trashTypeList.get(position).getTypeId();
 
-                // Filter markers by selected type
                 List<Container> filteredContainers = new ArrayList<>();
                 for (Container container : containersFromAPIArray) {
                     if (container.getTypeId().equals(selectedType)) {
                         filteredContainers.add(container);
                     }
                 }
-                // Add only the filtered markers to the map
 
                 if (filteredContainers.isEmpty()) {
                     addMarkersToMap(containersFromAPIArray);
@@ -179,7 +177,7 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                // Show all markers if no type is selected
+
                 addMarkersToMap(containersFromAPIArray);
             }
         });
@@ -194,7 +192,7 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                   // Log.d("---GETTING LOCATION", String.valueOf(location));
+                   Log.d("---GETTING LOCATION", String.valueOf(location));
 
                     if (location != null) {
                         //HARCODED FIRST LOCATION DUE TO EMULATOR
@@ -202,7 +200,6 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
                         callback.onLocationAvailable(res);  // Notify that the location is available
 
                     } else {
-                        //DEVICE LOCATION
                         // double lat = location.getLatitude();
                         // double longi = location.getLongitude();
                         // latitude = String.valueOf(lat);
@@ -210,7 +207,7 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
 
                         Toast.makeText(ContainersMapActivity.this, "Unable to find location.", Toast.LENGTH_SHORT).show();
                     }
-                    locationManager.removeUpdates(this);  // Stop listening for updates after getting the location
+                    locationManager.removeUpdates(this);
                 }
 
                 @Override
@@ -226,7 +223,6 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
     }
 
 
-    // The getAllLocations() method directly adds markers to the map after fetching data from the API.
     private void getAllLocations() {
 
         SharedPreferences sharedPref = getSharedPreferences("token", Context.MODE_PRIVATE);
@@ -240,8 +236,6 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
                     if (response.body() != null && !response.body().isEmpty()) {
 
                         containersFromAPIArray = new ArrayList<>(response.body());
-                        Log.d(TAG, "onResponse: " + response.body());
-                        // Add markers to map after data is fetched
                         addMarkersToMap(containersFromAPIArray);
                     } else {
                         Toast.makeText(ContainersMapActivity.this, "No containers yet to show", Toast.LENGTH_SHORT).show();
@@ -260,11 +254,8 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
 
     private void addMarkersToMap(List<Container> containerList) {
         if (gMap == null || containerList.isEmpty()) return;
-
-        // Clear all markers except the location marker
         gMap.clear();
 
-        // Re-add the location marker if it exists
         if (myLocationMarker != null) {
             myLocationMarker = gMap.addMarker(new MarkerOptions()
                     .position(myLocationMarker.getPosition())
@@ -273,46 +264,70 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
 
         for (Container container : containerList) {
             LatLng position = new LatLng(container.getLatitude(), container.getLongitude());
-            Integer trashTypeId = container.getTypeId(); // Assuming TrashTypeId is available in Container
+            Integer trashTypeId = container.getTypeId();
 
             for (TrashType type : trashTypeList) {
-                if (type.typeId == trashTypeId) {
-                    // Get marker color based on TrashTypeId
+                if (type.typeId.equals(trashTypeId)) {
                     float markerColor = getMarkerColorByType(type.typeName.toUpperCase());
 
-                    gMap.addMarker(new MarkerOptions()
-                            .position(position)
-                            .icon(BitmapDescriptorFactory.defaultMarker(markerColor))
-                            .title("Container: " + type.typeName + " " + container.getContainerId()));
+                    getStreetName(position, (streetName) -> {
+                        gMap.addMarker(new MarkerOptions()
+                                .position(position)
+                                .icon(BitmapDescriptorFactory.defaultMarker(markerColor))
+                                .title("Container "+ container.getContainerId() +": " + type.typeName  + ", " + streetName));
+                    });
                 }
             }
-
         }
+    }
+
+    private void getStreetName(LatLng position, StreetNameListener listener) {
+        new Thread(() -> {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            String streetName = "Unknown"; // Default value in case address is not found
+            String streetNumber = "";
+            try {
+                List<Address> addresses = geocoder.getFromLocation(position.latitude, position.longitude, 1);
+
+                if (addresses != null && !addresses.isEmpty()) {
+                    Address address = addresses.get(0);
+                    streetName = address.getThoroughfare();
+                    streetNumber = address.getFeatureName();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String fullAddress = streetName + " " + streetNumber;
+            String finalStreetName = fullAddress;
+            runOnUiThread(() -> listener.onStreetNameReceived(finalStreetName));
+        }).start();
     }
 
     private float getMarkerColorByType(String typeName) {
-        // Replace this with your logic to return different colors based on TrashTypeId
         switch (typeName) {
             case "MJESANI OTPAD":
-            case "MJESOVITI OTPAD":
-                return BitmapDescriptorFactory.HUE_GREEN;
+             case "MJESOVITI OTPAD":
+                case "KOMUNALNI OTPAD":
+                 return BitmapDescriptorFactory.HUE_GREEN;
             case "PAPIR": return BitmapDescriptorFactory.HUE_BLUE;
             case "PLASTIKA": return BitmapDescriptorFactory.HUE_YELLOW;
-            case "BIOOTPAD": return BitmapDescriptorFactory.HUE_ORANGE;
+            case "BIOOTPAD":
+                case "ODJECA":
+                    return BitmapDescriptorFactory.HUE_ORANGE;
             case "STAKLO": return BitmapDescriptorFactory.HUE_AZURE;
-            case "ULJE": return BitmapDescriptorFactory.HUE_VIOLET;
+            case "ULJE":
+                case "TETRAPAK": return BitmapDescriptorFactory.HUE_VIOLET;
             case "ELEKTRONIKA":
-            default: return BitmapDescriptorFactory.HUE_RED; // Default color
+            default: return BitmapDescriptorFactory.HUE_RED;
         }
     }
 
 
-    // Spinner spinner filters the displayed markers based on the selected trash type.
     private void getTypesFromDB() {
         SharedPreferences sharedPref = getSharedPreferences("token", Context.MODE_PRIVATE);
         String jwt = sharedPref.getString("x-access-token", "");
 
-        // calling a method to get user data
         Call<List<TrashType>> call = userAPIService.getAllTypes(jwt);
         call.enqueue(new Callback<List<TrashType>>() {
             @Override
@@ -329,7 +344,6 @@ public class ContainersMapActivity extends FragmentActivity implements OnMapRead
                         }
                     }
 
-                    // Move this inside the response to ensure the adapter is set after data is fetched
                     ArrayAdapter<String> adapter = new ArrayAdapter<>(ContainersMapActivity.this, android.R.layout.simple_spinner_dropdown_item, trashTypeNames);
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     spinnerTypes.setAdapter(adapter);

@@ -50,7 +50,6 @@ public class SignupActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_signup);
 
-        // initializing buttons and fields
         backBtn = findViewById(R.id.backBtn);
         registerBtn = findViewById(R.id.registerBtn);
         emailField = findViewById(R.id.emailAddress);
@@ -103,7 +102,7 @@ public class SignupActivity extends AppCompatActivity {
                 String regex = "^(?=.*[0-9])" + "(?=.*[a-z])(?=.*[A-Z])"+ "(?=\\S+$).{8,25}$";
                 Pattern pattern = Pattern.compile(regex);
                 Matcher patternMatcher = pattern.matcher(editable.toString());
-               // write test result in debug: Log.d("MSG ", " "+ password.matches(regex));
+               //Log.d("MSG ", " "+ password.matches(regex));
                 if(patternMatcher.matches())
                     errorMsgPass.setText("  ");
                 else{
@@ -169,25 +168,18 @@ public class SignupActivity extends AppCompatActivity {
             setResult(RESULT_OK,intent);
             finish();
         });
-
-
     }
-    /* PASSING DATA */
+
     private void sendData(User user) {
 
-        // gets the connection and creates an instance for retrofit endpoint api class
         Retrofit retrofit = Connection.getClient();
         InterfaceAPIAuthService APIService = retrofit.create(InterfaceAPIAuthService.class);
 
-        // calling a method to signup and passing user class
         Call<String> call = APIService.signup(user);
-
-        // executing method
         call.enqueue(new Callback<String>() {
             // getting response from API
             @Override
             public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
-                // getting response from body and passing it to toast.
                 String responseFromAPI = response.body();
                 if(response.code()==400){
                     Toast.makeText(SignupActivity.this, response.message(), Toast.LENGTH_SHORT).show();
@@ -202,14 +194,11 @@ public class SignupActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
-                //show error message in toast
                 Log.d(TAG, "on FAIL  " + t);
                 progressBar.setVisibility(View.GONE);
                 Toast.makeText(SignupActivity.this,""+ t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-    // private Boolean isEmpty(EditText etText){return etText.toString().isEmpty();}
 
 }

@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_login);
 
-        // button and fields from layout to get the values
         loginBtn = findViewById(R.id.loginBtn);
         registerBtn = findViewById(R.id.registerBtn);
         email = findViewById(R.id.emailAddress);
@@ -114,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        // Login button functionality
+
         loginBtn.setOnClickListener(view -> {
             //1. Get user input and clean data
             progressBar.setVisibility(View.VISIBLE);
@@ -142,8 +141,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-    // Method check data
     private boolean checkData(String email, String pass) {
         String emailPattern = "^[A-Za-z0-9+_.-]+@(.+)$";
 
@@ -151,39 +148,34 @@ public class MainActivity extends AppCompatActivity {
         return email.matches(emailPattern) && email.length() > 0;
     }
 
-    // Method send data
+
     private void authorize(String email, String pass) {
         // gets the connection and creates an instance for retrofit endpoint api class
         Retrofit retrofit = Connection.getClient();
         InterfaceAPIAuthService APIService = retrofit.create(InterfaceAPIAuthService.class);
 
         User user = new User(email, pass);
-        // calling a method to login and passing user class
+
         Call<Object> call = APIService.login(user);
 
-        // executing method
         call.enqueue(new Callback<Object>() {
             @Override
             public void onResponse(@NonNull Call<Object> call, @NonNull Response<Object> response) {
 
-                // getting response from body and passing it to toast.
                  //Log.d(TAG, "---- onResponse: RESP --- " + response);
                 if (response.code() == 400) {
                     Toast.makeText(MainActivity.this, response.message(), Toast.LENGTH_SHORT).show();
                 } else {
-                    progressBar.setVisibility(View.GONE);
                     Object tokenObj = response.body();
                     String token = tokenObj.toString();
                     String jwt = token.substring(token.indexOf("=") + 1, token.indexOf("}"));
                     user.setToken(jwt);
 
-                    // Saving token into Shared Preferences
                     SharedPreferences sPrefs = getSharedPreferences("token", Context.MODE_PRIVATE);
                     SharedPreferences.Editor edit = sPrefs.edit();
                     edit.putString("x-access-token", "Bearer " + jwt);
                     edit.apply();
 
-                    // getting users role for further activity redirecting
                     try {
                         JSONObject userFromJWT = decodeToken(token);
                         user.setRole(userFromJWT.getInt("role"));
@@ -210,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "" + throwable.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+        progressBar.setVisibility(View.GONE);
     }
 
     private JSONObject decodeToken(String token) {
@@ -225,10 +218,6 @@ public class MainActivity extends AppCompatActivity {
         }
         return userData;
     }
-
-//  OnResume gets token from Shared Preferences
-//            - if its empty -> user needs to login
-//            - if it has token -> redirects to user main profile
 
 /**
     @Override

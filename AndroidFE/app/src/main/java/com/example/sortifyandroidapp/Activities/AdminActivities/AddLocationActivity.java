@@ -58,8 +58,8 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
     Marker marker;
     private Spinner spinnerTypes;
     private Switch switchFilter;
-    private ArrayList<String> trashTypeNames = new ArrayList<>(); // Initialize the ArrayList
-    private ArrayList<TrashType> trashTypeList = new ArrayList<>(); // Initialize the ArrayList
+    private ArrayList<String> trashTypeNames = new ArrayList<>();
+    private ArrayList<TrashType> trashTypeList = new ArrayList<>();
     private Button buttonEdit, buttonNext;
     private String selectedTrashType;
     private Container newContainer;
@@ -73,7 +73,7 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
     private ArrayList<Container> allContainers = new ArrayList<>();
 
     // New variable to store selected container ID
-    private Integer selectedContainerId = null; // use Integer instead of int to allow null values
+    private Integer selectedContainerId = null;
 
     Retrofit retrofit = Connection.getClient();
     InterfaceUserAPIService userAPIService = retrofit.create(InterfaceUserAPIService.class); // to catch trash types
@@ -87,15 +87,15 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
         spinnerTypes = findViewById(R.id.spinner_types);
         buttonEdit = findViewById(R.id.buttonEdit);
         buttonNext = findViewById(R.id.buttonNext);
-        // Initialize switch button
         switchFilter = findViewById(R.id.ToggleBtn);
 
         getTypesFromDB();
-        getContainersFromAPI(); // Fetch existing containers from the API
+        getContainersFromAPI();
 
         buttonNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 saveNewContainerData();
             }
         });
@@ -115,19 +115,17 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
             }
         });
 
-        // Set the listener for the switch button
+        // Setting the listener for the switch button
         switchFilter.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-                getFilteredContainersFromAPI();  // Fetch filtered containers when switch is on
+                getFilteredContainersFromAPI();
             } else {
-                getContainersFromAPI();  // Fetch all containers when switch is off
+                getContainersFromAPI();
             }
         });
 
-        // Initialize the location manager
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        // Initialize map
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
@@ -136,23 +134,21 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
 
     private void editData() {
 
-        // Inflate the popup window layout
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_location, null);
 
         Spinner spinnerEditTypes = dialogView.findViewById(R.id.spinner_edit_types);
         Switch switchEditFilter = dialogView.findViewById(R.id.switch_edit_filter);
         TextView containerType = dialogView.findViewById(R.id.contanerType);
 
-        // Set up the spinner with trash types
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, trashTypeNames);
         spinnerEditTypes.setAdapter(adapter);
-        // Set the Text View with data of container type
+
         for(TrashType type : trashTypeList){
             if(clickedContainer.getTypeId().equals(type.typeId)){
                 containerType.setText("Container type: "+ type.typeName);
             }
         }
-        // Build and show the dialog
+        // Build and show the Dialog
         new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .setTitle("Edit Container")
@@ -185,7 +181,7 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
     }
 
     private void saveEditedData() {
-        // Send edited location to api if all fields are ok
+
         Log.d(TAG, "--saveEditedData: " + editedContainer.getTypeId() +" "+ editedContainer.getLongitude()+" " + editedContainer.getLatitude());
         SharedPreferences sharedPrefs = getSharedPreferences("token", Context.MODE_PRIVATE);
         String jwt = sharedPrefs.getString("x-access-token", "");
@@ -214,10 +210,14 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
     public void onMapReady(@NonNull GoogleMap googleMap) {
         gMap = googleMap;
 
-        // Enable user location
+        // Check for location permissions
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Request permission if not granted
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION);
             return;
         }
+
+        gMap.setMyLocationEnabled(true);
 
         /* Set a marker click listener to get marker position and update selected container ID
           if the existed marker is clicked - this allows admin to edit data of the selected marker */
@@ -236,12 +236,11 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
                     buttonEdit.setEnabled(false);
                     Toast.makeText(AddLocationActivity.this, "Container not valid.", Toast.LENGTH_SHORT).show();
                 }
-                return false; // return false to allow default behavior (like camera centering on the marker)
+                return false;
             }
         });
 
-        // RIGHT BUTTON LOCATION FUNCTIONALITY
-        gMap.setMyLocationEnabled(true);
+
         gMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
@@ -250,7 +249,7 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
                 return true;
             }
         });
-        // Add markers for all containers
+
         addMarkersForAllContainers();
 
         getDeviceLocation(new MapInterface() {
@@ -285,7 +284,6 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
             }
         });
 
-        // This Map listener creates a new Marker (marks the location on a map to be added as a new container)
         gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -331,7 +329,7 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
 
     private void saveNewContainerData() {
         if (marker == null || spinnerTypes.getSelectedItem() == null) {
-            Toast.makeText(this, "Please input correct information.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Input correct information.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -358,7 +356,7 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     Toast.makeText(AddLocationActivity.this, "Location saved successfully", Toast.LENGTH_SHORT).show();
-                    getContainersFromAPI(); // Refresh container data
+                    getContainersFromAPI();
                 } else {
                     Toast.makeText(AddLocationActivity.this, "Failed to save location", Toast.LENGTH_SHORT).show();
                 }
@@ -411,7 +409,7 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
 
                 if (response.isSuccessful() && response.body() != null) {
                     allContainers = new ArrayList<>(response.body());
-                    addMarkersForAllContainers(); // Update map with new markers
+                    addMarkersForAllContainers();
                 } else {
                     Toast.makeText(AddLocationActivity.this, "Failed to fetch containers", Toast.LENGTH_SHORT).show();
                 }
@@ -434,7 +432,7 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
             public void onResponse(@NonNull Call<List<Container>> call, @NonNull Response<List<Container>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     allContainers = new ArrayList<>(response.body());
-                    addMarkersForAllContainers(); // Update map with new markers
+                    addMarkersForAllContainers();
                 } else {
                     Toast.makeText(AddLocationActivity.this, "Failed to load containers", Toast.LENGTH_SHORT).show();
                 }
@@ -449,19 +447,20 @@ public class AddLocationActivity extends FragmentActivity implements OnMapReadyC
     }
 
     private void addMarkersForAllContainers() {
+        Log.d(TAG, "--------addMarkersForAllContainers: " + allContainers);
         if (gMap != null && allContainers != null) {
-            // Clear all markers except the location marker
             gMap.clear();
 
-            // Re-add the location marker if it exists
             if (myLocationMarker != null) {
                 myLocationMarker = gMap.addMarker(new MarkerOptions()
                         .position(myLocationMarker.getPosition())
                         .title("You are here"));
             }
 
+            // Add markers for each container
             for (Container container : allContainers) {
                 LatLng location = new LatLng(container.getLatitude(), container.getLongitude());
+                Log.d(TAG, "Adding Marker - Container ID: " + container.getContainerId() + " at " + location.latitude + ", " + location.longitude);
                 gMap.addMarker(new MarkerOptions().position(location).title("Container ID: " + container.getContainerId()).draggable(true));
             }
         }

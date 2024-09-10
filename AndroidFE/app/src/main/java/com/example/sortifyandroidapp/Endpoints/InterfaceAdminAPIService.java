@@ -6,6 +6,7 @@ import com.example.sortifyandroidapp.Models.Product;
 import com.example.sortifyandroidapp.Models.TrashType;
 import com.example.sortifyandroidapp.Models.User;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +90,7 @@ public interface InterfaceAdminAPIService {
             "content-type: application/json"
     })
     @PUT("admin/product/{id}")
-    Call<ResponseBody> updateProduct(@Header("x-access-token") String token,@Path(value="id", encoded=true) String id, @Body User product);
+    Call<ResponseBody> updateProduct(@Header("x-access-token") String token, @Path(value="id", encoded=true) String id, @Body Product product);
 
     // Request with id as a parameter to delete product with given id
     @Headers({
@@ -97,6 +98,7 @@ public interface InterfaceAdminAPIService {
             "User-Agent: Retrofit-App",
             "content-type: application/json"
     })
+
     @DELETE("admin/product/{id}")
     Call<List<Product>> deleteProduct(@Header("x-access-token") String token,@Path(value="id", encoded=true) String id);
 
@@ -107,26 +109,25 @@ public interface InterfaceAdminAPIService {
             "content-type: application/json"
     })
     @PUT("admin/users/{uid}")
-    Call<ResponseBody> changeUserStatus(@Header("x-access-token") String token, @Path(value="uid", encoded=true) Integer uid, @Body Integer active);
+    Call<ResponseBody> changeUserStatus(@Header("x-access-token") String token, @Path(value="uid", encoded=true) Integer uid, @Body User user);
 
-    // Changes User from Admin to User and revert
+
     @Headers({
             "Accept: */* ",
             "User-Agent: Retrofit-App",
             "content-type: application/json"
     })
     @PUT("admin/users/{uid}")
-    Call<ResponseBody> changeUserRole(@Header("x-access-token") String token,@Path(value="uid", encoded=true) Integer uid, @Body Integer role);
+    Call<ResponseBody> changeUserRole(@Header("x-access-token") String token, @Path(value="uid", encoded=true) Integer uid, @Body User user);
 
-
-    //Put request to set/ unset users request status as seen/ unseen
+//set seen /unseen
     @Headers({
             "Accept: */* ",
             "User-Agent: Retrofit-App",
             "content-type: application/json"
     })
-    @PUT("admin/users/requests/{id}")
-    Call<ResponseBody> changeRequestStatus(@Header("x-access-token") String token,@Path(value="id", encoded=true) String id, @Body String seen);
+    @PUT("admin/users/requests/{fid}")
+    Call<ResponseBody> changeRequestStatus(@Header("x-access-token") String token, @Path(value="fid", encoded=true) Integer fid, @Body HashMap<String, Integer> body);
 
     // Get request for getting user form(request) with given id
     @Headers({
@@ -134,15 +135,8 @@ public interface InterfaceAdminAPIService {
             "User-Agent: Retrofit-App",
             "content-type: application/json"
     })
-    @GET("admin/users/requests/{id}")
-    Call<Form> getUserForm(@Header("x-access-token") String token,@Path(value="id", encoded=true) String id, @Body String seen);
 
-    //Post request for adding new container location in DB
-    @Headers({
-            "Accept: */* ",
-            "User-Agent: Retrofit-App",
-            "content-type: application/json"
-    })
+
     @POST("admin/locations/add")
     Call<ResponseBody> addContainerOnLocation(@Header("x-access-token") String token, @Body Container container);
 

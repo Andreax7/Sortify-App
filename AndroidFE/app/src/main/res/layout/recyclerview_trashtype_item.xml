@@ -11,6 +11,7 @@
             android:id="@+id/trashTypeTextView"
             android:layout_width="0dp"
             android:layout_height="43dp"
+            android:layout_margin="10dp"
             android:layout_weight="1"
             android:fontFamily="@font/amaranth_bold"
             android:paddingStart="10dp"
@@ -42,7 +43,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView17"
             app:rippleColor="#EEFF41"
-            app:srcCompat="@android:drawable/ic_menu_edit" />
+            app:srcCompat="@android:drawable/ic_menu_edit"
+            android:focusable="true" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/deleteTypeBtn"
@@ -58,6 +60,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView17"
             app:rippleColor="#EEFF41"
-            app:srcCompat="@android:drawable/ic_delete" />
+            app:srcCompat="@android:drawable/ic_delete"
+            android:focusable="true" />
 
 </LinearLayout>

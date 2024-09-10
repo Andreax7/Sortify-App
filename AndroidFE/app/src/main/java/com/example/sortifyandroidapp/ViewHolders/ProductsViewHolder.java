@@ -20,7 +20,7 @@ public class ProductsViewHolder extends RecyclerView.ViewHolder {
 
         prodImg = itemView.findViewById(R.id.productImage);
         productName = itemView.findViewById(R.id.productNameTextView);
-        typeName = itemView.findViewById(R.id.trashTypeView);
+        typeName = itemView.findViewById(R.id.date);
         editProductBtn = itemView.findViewById(R.id.editProductBtn);
         deleteProductBtn = itemView.findViewById(R.id.deleteProductBtn);
         view  = itemView;

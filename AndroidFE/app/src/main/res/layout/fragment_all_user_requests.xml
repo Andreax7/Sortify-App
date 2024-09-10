@@ -22,7 +22,11 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/requestListRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="643dp"
+            tools:ignore="SpeakableTextPresentCheck">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
     </LinearLayout>
 
 </FrameLayout>

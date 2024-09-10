@@ -1,8 +1,8 @@
 package com.example.sortifyandroidapp.Listeners;
 
-public abstract class TypeListener {
+public interface TypeListener {
 
     // index is position of item clicked
-    public abstract void click(int index);
+    void click(int index);
 
 }

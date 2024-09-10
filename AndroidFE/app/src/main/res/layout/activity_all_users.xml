@@ -8,7 +8,7 @@
     tools:context=".Activities.AdminActivities.AllUsersActivity">
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/allUsersBtn"
+        android:id="@+id/myRequestsBtn"
         android:layout_width="206dp"
         android:layout_height="49dp"
         android:layout_marginTop="16dp"
@@ -25,7 +25,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/requestsBtn"
+        android:id="@+id/sendRequestBtn"
         android:layout_width="206dp"
         android:layout_height="49dp"
         android:layout_marginTop="16dp"
@@ -37,7 +37,7 @@
         app:layout_constraintBottom_toTopOf="@+id/fragment_frame"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/allUsersBtn"
+        app:layout_constraintStart_toEndOf="@+id/myRequestsBtn"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
@@ -78,8 +78,10 @@
 
     <FrameLayout
         android:id="@+id/fragment_frame"
-        android:layout_width="413dp"
+        android:layout_width="0dp"
         android:layout_height="542dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

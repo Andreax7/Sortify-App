@@ -10,16 +10,16 @@ import com.example.sortifyandroidapp.R;
 
 public class RequestsFragmentViewHolder  extends RecyclerView.ViewHolder {
 
-    public TextView formId, productInfo, seen;
+    public TextView formId, productName, seen, date;
     public View view;
 
     public RequestsFragmentViewHolder(@NonNull View itemView) {
         super(itemView);
 
-        seen = itemView.findViewById(R.id.seenStatus);
-        formId = itemView.findViewById(R.id.requestId);
-        productInfo = itemView.findViewById(R.id.productInfo);
-
+        seen = itemView.findViewById(R.id.requestSeen);
+        formId = itemView.findViewById(R.id.requestItemId);
+        productName = itemView.findViewById(R.id.productNameTextView);
+        date = itemView.findViewById(R.id.date);
         view  = itemView;
     }
 }

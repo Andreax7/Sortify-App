@@ -19,7 +19,6 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -51,7 +50,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import okio.Timeout;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -80,9 +78,9 @@ public class AddProductActivity extends AppCompatActivity implements AdapterView
         setContentView(R.layout.activity_add_product);
 
         image = findViewById(R.id.productImg);
-        barcode = findViewById(R.id.barcode);
-        productName = findViewById(R.id.productName);
-        details = findViewById(R.id.productDetails);
+        barcode = findViewById(R.id.barcodeField);
+        productName = findViewById(R.id.productNameField);
+        details = findViewById(R.id.productDetailsField);
         spinnerDropdown = findViewById(R.id.spinnerTypesList);
         captureButton = findViewById(R.id.loadPicBtn);
 
@@ -219,10 +217,8 @@ public class AddProductActivity extends AppCompatActivity implements AdapterView
         SharedPreferences sharedPrefs = getSharedPreferences("token", Context.MODE_PRIVATE);
         String jwt = sharedPrefs.getString("x-access-token", "");
 
-        // Log the new product object
         Log.d(TAG, "createNewProduct: " + newProduct.toString());
 
-        // Make sure to convert the image to a Base64 string if necessary
         newProduct.setImage(encodeImage(image.getDrawable()));
 
         Call<List<Product>> call = APIService.addNewProduct(jwt, newProduct);
@@ -231,7 +227,7 @@ public class AddProductActivity extends AppCompatActivity implements AdapterView
             public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
 
                 if(response.code()==400 || response.code()==403 ){
-                    Log.e("AddNewProductActivity response from server ", response.message());
+                    Log.e(TAG, "AddNewProductActivity response from server " + response.message());
                     Toast.makeText(AddProductActivity.this, " Failed to add product" , Toast.LENGTH_SHORT).show();
                 }
                 else{
@@ -261,15 +257,22 @@ public class AddProductActivity extends AppCompatActivity implements AdapterView
     }
 
     private String encodeImage(Drawable drawable) {
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
+
+        Bitmap originalBitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(originalBitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
 
+        // Reducing dimensions
+        int targetWidth = 300; // example width
+        int targetHeight = (int) ((double) targetWidth / originalBitmap.getWidth() * originalBitmap.getHeight());
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, targetWidth, targetHeight, false);
+
+        //Compressing
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 40, byteArrayOutputStream);
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, byteArrayOutputStream);
         byte[] byteArray = byteArrayOutputStream.toByteArray();
-        //return byteArray;
+
         return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 

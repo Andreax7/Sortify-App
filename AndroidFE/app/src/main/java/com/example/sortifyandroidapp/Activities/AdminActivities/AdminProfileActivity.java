@@ -4,55 +4,34 @@ import static android.content.ContentValues.TAG;
 
 import static java.lang.Long.parseLong;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.hardware.Camera;
-import android.hardware.camera2.CameraDevice;
+
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.sortifyandroidapp.Activities.ContainersMapActivity;
 import com.example.sortifyandroidapp.Activities.ScanProductActivity;
+import com.example.sortifyandroidapp.Activities.StatisticsActivity;
+import com.example.sortifyandroidapp.Activities.UserActivities.RecycleActivity;
 import com.example.sortifyandroidapp.Activities.UserActivities.UserDataActivity;
-import com.example.sortifyandroidapp.Adapters.ProductsAdapter;
-import com.example.sortifyandroidapp.Adapters.TrashTypeAdapter;
-import com.example.sortifyandroidapp.Connection;
-import com.example.sortifyandroidapp.Endpoints.InterfaceUserAPIService;
-import com.example.sortifyandroidapp.Models.Product;
-import com.example.sortifyandroidapp.Models.TrashType;
-import com.example.sortifyandroidapp.R;
-import com.journeyapps.barcodescanner.CaptureActivity;
-import com.journeyapps.barcodescanner.ScanContract;
-import com.journeyapps.barcodescanner.ScanOptions;
 
+import com.example.sortifyandroidapp.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-
 
 /**
  * AdminProfile Activity contains admin fields for manipulating data such as
@@ -67,8 +46,7 @@ public class AdminProfileActivity extends AppCompatActivity {
     Button logoutBtn, myAccountBtn, usersAndRequestsBtn, mapBtn, scanBtn, productsBtn, recycleBtn, containersBtn, statisticsBtn ;
     TextView nameTextView;
 
-    // gets the connection and creates an instance for retrofit endpoint api class
-
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +64,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         statisticsBtn = findViewById(R.id.statsBtn);
         nameTextView = findViewById(R.id.nameTextView);
 
-        // gets Access token for sending token in request
+
         SharedPreferences sharedPref = getSharedPreferences("token", Context.MODE_PRIVATE);
         String res = sharedPref.getString("x-access-token", "");
         Log.d(TAG, "---OnCreate (AdminProfileActivity) ---- " + res);
@@ -108,9 +86,7 @@ public class AdminProfileActivity extends AppCompatActivity {
                 }
 
 
-
-
-         /* Button for admin crud functionalities */
+            /** ADMIN CRUD FUNCTIONALITIES **/
 
                 logoutBtn.setOnClickListener(view -> {
                     SharedPreferences.Editor editor = sharedPref.edit();
@@ -151,47 +127,23 @@ public class AdminProfileActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         Intent scanIntent = new Intent(AdminProfileActivity.this, ScanProductActivity.class);
                         startActivity(scanIntent);
-                     //   scanCode();
-
                     }
                 });
 
+                recycleBtn.setOnClickListener(view -> {
+                    Intent recycleIntent = new Intent(AdminProfileActivity.this, RecycleActivity.class);
+                    startActivity(recycleIntent);
+                });
+
+
+                statisticsBtn.setOnClickListener(view -> {
+                    Intent statsIntent = new Intent(AdminProfileActivity.this, StatisticsActivity.class);
+                    startActivity(statsIntent);
+                });
         }
-    /*
-    * END OF BUTTON FUNCTIONNALITIES
-    * END OF OnCreate method
-    * */
+
     }
 
-  /*  private void scanCode() {
-
-        ScanOptions options = new ScanOptions();
-        options.setPrompt("Volume up to flash on");
-        options.setBeepEnabled(true);
-        options.setOrientationLocked(true);
-        options.setCaptureActivity(CaptureAct.class);
-
-        barLauncher.launch(options);
-    }
-
-    //retrieving data after camera capture
-    ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result ->
-    {
-        Log.d(TAG, "----HERE: " + result.getContents());
-        if(result.getContents() != null){
-            AlertDialog.Builder bulider = new AlertDialog.Builder(AdminProfileActivity.this);
-            bulider.setTitle("result");
-            // get data from barcode
-            bulider.setMessage(result.getContents());
-            bulider.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    dialogInterface.dismiss();
-                }
-            }).show();
-        }
-    });
-*/
     /** Check if this device has a camera */
     /*private boolean checkCameraHardware(Context context) {
         if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
@@ -203,6 +155,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         }
     }*/
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
     protected void onResume() {
         super.onResume();
@@ -233,6 +186,7 @@ public class AdminProfileActivity extends AppCompatActivity {
     /*
     * ADDITIONAL HELPERS METHODS
     * */
+    @RequiresApi(api = Build.VERSION_CODES.O)
     protected boolean isExpired(JSONObject jwtToken) {
         boolean valid = true;
         try {
@@ -248,6 +202,7 @@ public class AdminProfileActivity extends AppCompatActivity {
         return valid;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private JSONObject decodeToken(String token) throws JSONException {
         Base64.Decoder decoder = Base64.getUrlDecoder();
         String[] tokenParts = token.split("\\.");

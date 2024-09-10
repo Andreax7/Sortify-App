@@ -11,23 +11,27 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.sortifyandroidapp.Listeners.UserClickListener;
+import com.example.sortifyandroidapp.Listeners.OnFormClickListener;
 import com.example.sortifyandroidapp.Models.Form;
 import com.example.sortifyandroidapp.R;
 import com.example.sortifyandroidapp.ViewHolders.RequestsFragmentViewHolder;
 
 import java.util.List;
 
-
 public class AllRequestsFAdapter extends RecyclerView.Adapter<RequestsFragmentViewHolder> {
 
-    private List<Form> requestList ;
-    private UserClickListener listener;
-
-
-    public AllRequestsFAdapter(List<Form> reqList){
-        this.requestList = reqList;
+    public void setRequestList(List<Form> requestList) {
+        this.requestList = requestList;
     }
+
+    private List<Form> requestList;
+    private OnFormClickListener listener;
+
+    public AllRequestsFAdapter(List<Form> reqList, OnFormClickListener listener) {
+        this.requestList = reqList;
+        this.listener = listener;
+    }
+
     @NonNull
     @Override
     public RequestsFragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -35,35 +39,27 @@ public class AllRequestsFAdapter extends RecyclerView.Adapter<RequestsFragmentVi
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the layout
-        View RequestRecyclerViewItem = inflater.inflate(R.layout.recyclerview_admin_request_item, parent, false);
-        RequestsFragmentViewHolder viewHolder = new RequestsFragmentViewHolder(RequestRecyclerViewItem);
-        return viewHolder;
+        View RequestRecyclerViewItem = inflater.inflate(R.layout.recyclerview_request_item, parent, false);
+        return new RequestsFragmentViewHolder(RequestRecyclerViewItem);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RequestsFragmentViewHolder holder, int position) {
+        final Form currentForm = requestList.get(position);
 
-        final int requestIndex = holder.getAdapterPosition();
-       // Integer requestStatus = userList.get(requestIndex).getActive();
-       // holder.email.setText(userList.get(requestIndex).getEmail());
-        //if (userStatus == 1) {
-        //    holder.status.setText("active");
-       // } else {
-        //    holder.status.setText("inactive");
-        //}
+        holder.seen.setText(currentForm.seen.toString());
+        holder.productName.setText(currentForm.productName);
+        holder.date.setText(currentForm.date);
+        holder.formId.setText(currentForm.formId.toString());
 
-        Log.d("ADAPTER ", String.valueOf(requestIndex));
         holder.view.setOnClickListener(view -> {
-            // Send User data to new Activity
-            Log.d(TAG, "onClick in FRAGMENT ADAPTER requests: ");
-            //listener.onUserClick(userList.get(typeIndex));
+            Log.d(TAG, "onClick in FRAGMENT ADAPTER requests: " + currentForm);
+            listener.onFormClick(currentForm);
         });
     }
-
 
     @Override
     public int getItemCount() {
         return requestList.size();
     }
-
 }

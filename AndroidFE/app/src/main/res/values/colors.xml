@@ -8,4 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="Btns">#98CDFF7C</color>
+    <color name="red">#A87243</color>
+    <color name="yellow">#B5F421</color>
+    <color name="green">#1CC11E</color>
+
 </resources>

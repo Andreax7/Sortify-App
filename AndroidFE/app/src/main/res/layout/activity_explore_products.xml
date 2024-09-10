@@ -9,21 +9,40 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addProductBtn"
-        android:layout_width="55dp"
+        android:layout_width="50dp"
         android:layout_height="56dp"
-        android:layout_marginTop="12dp"
-        android:backgroundTint="#A1004D29"
+        android:backgroundTint="#A1FFA305"
         android:clickable="true"
         android:contentDescription="@string/addtype"
         app:backgroundTint="#00EEFF41"
         app:layout_constraintBottom_toTopOf="@+id/productRecycler"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.617"
+        app:layout_constraintHorizontal_bias="0.595"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/trashTypeRecycler"
+        app:layout_constraintTop_toBottomOf="@+id/addTypeBtn"
+        app:layout_constraintVertical_bias="0.922"
         app:rippleColor="#EEFF41"
         app:srcCompat="@android:drawable/ic_input_add"
-        tools:ignore="ImageContrastCheck,DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck" />
+        tools:ignore="ImageContrastCheck,DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck"
+        android:focusable="true" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/refreshProductsBtn"
+        android:layout_width="55dp"
+        android:layout_height="56dp"
+        android:backgroundTint="#2DBAF4CA"
+        android:clickable="true"
+        android:contentDescription="@string/addtype"
+        app:backgroundTint="#69F0AE"
+        app:layout_constraintBottom_toTopOf="@+id/productRecycler"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.32"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.935"
+        app:srcCompat="@android:drawable/stat_notify_sync_noanim"
+        tools:ignore="ImageContrastCheck,DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck"
+        android:focusable="true" />
 
     <TextView
         android:id="@+id/addtypetxt"
@@ -118,7 +137,7 @@
 
     <TextView
         android:id="@+id/textView28"
-        android:layout_width="177dp"
+        android:layout_width="111dp"
         android:layout_height="40dp"
         android:layout_marginStart="3dp"
         android:layout_marginEnd="3dp"
@@ -136,14 +155,14 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.441"
+        app:layout_constraintVertical_bias="0.452"
         tools:ignore="TextContrastCheck" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addTypeBtn"
-        android:layout_width="55dp"
+        android:layout_width="50dp"
         android:layout_height="56dp"
-        android:backgroundTint="#A1004D29"
+        android:backgroundTint="#A1FFA305"
         android:clickable="true"
         android:contentDescription="@string/addtype"
         app:backgroundTint="#00EEFF41"
@@ -155,18 +174,20 @@
         app:layout_constraintVertical_bias="0.0"
         app:rippleColor="#EEFF41"
         app:srcCompat="@android:drawable/ic_input_add"
-        tools:ignore="ImageContrastCheck,DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck" />
+        tools:ignore="ImageContrastCheck,DuplicateSpeakableTextCheck,DuplicateSpeakableTextCheck"
+        android:focusable="true" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/productRecycler"
         android:layout_width="408dp"
         android:layout_height="252dp"
+        android:layout_marginTop="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView28"
-        app:layout_constraintVertical_bias="0.082">
+        app:layout_constraintVertical_bias="0.127">
 
     </androidx.recyclerview.widget.RecyclerView>
 

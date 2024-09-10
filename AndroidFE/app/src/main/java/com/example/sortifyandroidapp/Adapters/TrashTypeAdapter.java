@@ -63,28 +63,31 @@ public class TrashTypeAdapter extends RecyclerView.Adapter<TrashTypeViewHolder> 
     @Override
     public void onBindViewHolder(@NonNull final TrashTypeViewHolder holder, int position) {
 
-        final int typeIndex = holder.getAdapterPosition();
-        holder.trashType.setText(typeList.get(position).typeName);
+        final int rowIndex = holder.getAdapterPosition();
+        holder.trashType.setText(typeList.get(rowIndex).typeName);
 
-        /*
+
         holder.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
-                typeListener.click(typeIndex);
-                Log.d("----TYPE INDEX FOR FILTERING PRODUCTS ", String.valueOf(typeIndex));
+
+                Integer clickedIndex = typeList.get(rowIndex).typeId;
+                Log.d(TAG, "----TYPE INDEX FOR FILTERING PRODUCTS " + String.valueOf(clickedIndex)); //String.valueOf(typeList.get(position).typeId));
+
+                typeListener.click(rowIndex);
                 // filter products list by type
             }
         });
-       */
+
 
 
         holder.editTypeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // New window to update trash type and db call
-                TrashType typeObj = typeList.get(typeIndex);
-                Integer intTypeId = typeList.get(typeIndex).typeId;
+                TrashType typeObj = typeList.get(rowIndex);
+                Integer intTypeId = typeList.get(rowIndex).typeId;
 
                 PopUpUpdateTypeClass popupUpdateClass = new PopUpUpdateTypeClass();
                 PopupWindow popUp = popupUpdateClass.showPopupWindow(view,typeObj);
@@ -112,7 +115,7 @@ public class TrashTypeAdapter extends RecyclerView.Adapter<TrashTypeViewHolder> 
             @Override
             public void onClick(View view) {
                 // New window with confirmation and db call
-                Integer intTypeId = typeList.get(typeIndex).typeId;
+                Integer intTypeId = typeList.get(rowIndex).typeId;
 
                 PopUpDeleteTypeClass popUpDeleteClass = new PopUpDeleteTypeClass();
                 PopupWindow popUp = popUpDeleteClass.showPopupWindow(view, String.valueOf(intTypeId));

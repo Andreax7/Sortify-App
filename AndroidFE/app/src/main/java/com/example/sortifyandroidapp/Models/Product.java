@@ -43,5 +43,27 @@ public class Product extends Throwable implements Serializable {
     public Product(String productNameTxt, String barcodeTxt, byte[] decodedImg, Integer tId, String detailsTxt) {
     }
 
+    public Integer getProductId() {
+        return productId;
+    }
 
+    public void setProductId(Integer productId) {
+        this.productId = productId;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    public void setTypeId(Integer typeId) {
+        this.typeId = typeId;
+    }
 }

@@ -21,8 +21,8 @@ public class AllUsersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_users);
 
-        allUsersBtnFragment = findViewById(R.id.allUsersBtn);
-        requestsBtnFragment = findViewById(R.id.requestsBtn);
+        allUsersBtnFragment = findViewById(R.id.myRequestsBtn);
+        requestsBtnFragment = findViewById(R.id.sendRequestBtn);
         returnBtn = findViewById(R.id.backBtn2);
 
         allUsersBtnFragment.setOnClickListener(new View.OnClickListener() {

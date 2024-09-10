@@ -6,12 +6,15 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -45,21 +48,18 @@ import retrofit2.Retrofit;
 
 public class ExploreProductsActivity extends AppCompatActivity {
 
-    // creating a variable for recycler view,
-    // array list, object type and adapter class for TrashType and Products
     private TrashTypeAdapter typeAdapter;
     private ProductsAdapter productsAdapter;
     private RecyclerView typeRecycler, productRecycler;
     private TypeListener typeListener;
-    private FloatingActionButton addTypeBtn, addProductBtn;
+    private FloatingActionButton addTypeBtn, addProductBtn, refreshBtn;
     private List<TrashType> allTypes;
     private List<Product> allProducts;
+    private ActivityResultLauncher<Intent> editProductLauncher;
 
-    // gets the connection and creates an instance for retrofit endpoint api class
     Retrofit retrofit = Connection.getClient();
     InterfaceUserAPIService userAPIService = retrofit.create(InterfaceUserAPIService.class);
 
-    // define listener for adding new Trash Type/ Product
     ActivityResultLauncher<Intent> typeLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == RESULT_OK) {
@@ -71,11 +71,10 @@ public class ExploreProductsActivity extends AppCompatActivity {
             result -> {
                 if (result.getResultCode() == RESULT_OK) {
                     Intent data = result.getData();
-                //    Log.d(TAG, "--LAUNCHER DATA: " + data.getStringExtra("result"));
+                    //    Log.d(TAG, "--LAUNCHER DATA: " + data.getStringExtra("result"));
                 }
             }
     );
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,31 +84,73 @@ public class ExploreProductsActivity extends AppCompatActivity {
         allTypes = new ArrayList<>();
         typeAdapter = new TrashTypeAdapter(allTypes,typeListener);
         typeRecycler = findViewById(R.id.trashTypeRecycler);
-        // below line is to set layout manager for recycler view.
+
         LinearLayoutManager manager = new LinearLayoutManager(ExploreProductsActivity.this);
         // setting empty layout manager for recycler view - to eliminate "no adapter attached error"
         typeRecycler.setLayoutManager(manager);
         typeRecycler.setAdapter(typeAdapter);
         getTypesFromDB();
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(typeRecycler.getContext(), DividerItemDecoration.VERTICAL);
+        Drawable dividerDrawable = ContextCompat.getDrawable(this, R.drawable.divider);
+        dividerItemDecoration.setDrawable(dividerDrawable);
+        typeRecycler.addItemDecoration(dividerItemDecoration);
+
 
         allProducts = new ArrayList<>();
-        productsAdapter = new ProductsAdapter(allProducts, allTypes ); // initializing products adapter to avoid no adapted attached error
+        productsAdapter = new ProductsAdapter(allProducts, allTypes, editProductLauncher );
         productRecycler = findViewById(R.id.productRecycler);
-        // setting layout manager for recycler view.
+
         LinearLayoutManager manager2 = new LinearLayoutManager(ExploreProductsActivity.this);
         productRecycler.setLayoutManager(manager2);
         productRecycler.setAdapter(productsAdapter);
         getProductsFromDB();
 
 
-        // listener for updating TrashType Recycler after adding new TrashType
+        refreshBtn = findViewById(R.id.refreshProductsBtn);
+
+        refreshBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getProductsFromDB();
+            }
+        });
+
+        editProductLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        getProductsFromDB();
+                    }
+                }
+        );
+
+
+        productsAdapter = new ProductsAdapter(allProducts, allTypes, editProductLauncher);
+        productRecycler = findViewById(R.id.productRecycler);
+        productRecycler.setLayoutManager(new LinearLayoutManager(this));
+        productRecycler.setAdapter(productsAdapter);
+
+
+        typeListener = new TypeListener() {
+            @Override
+            public void click(int index) {
+                Integer type = allTypes.get(index).typeId;
+                Log.d(TAG, "----activity TYPE INDEX FOR FILTERING PRODUCTS " + type.toString() +" " + index);
+
+                getFilteredProductsFromDB(String.valueOf(type));
+                productsAdapter.filterProductsByType(type);
+
+            }
+
+        };
+
         typeLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
                         Intent data = result.getData();
                         allTypes = (List<TrashType>) data.getSerializableExtra("result");
-                        // below line we are running a loop to add data to adapter class and set adapter with new data to recycler view.
+                        // Setting adapter with new data to recycler view
                         typeAdapter = new TrashTypeAdapter(allTypes,typeListener);
                         typeRecycler.setAdapter(typeAdapter);
                     }
@@ -123,27 +164,25 @@ public class ExploreProductsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent addNewTypeIntent = new Intent(ExploreProductsActivity.this, AddNewTypeActivity.class);
                 typeLauncher.launch(addNewTypeIntent);
-                // bellow lines of code do not refresh current activity, so the launcher listener is created as above
+                // bellow lines of code do not refresh current activity, so the launcher listener is created as above (DEPRICATED)
                 //addNewTypeIntent.putExtra("adapter", (Serializable) allTypes);
                 //startActivity(addNewTypeIntent);
 
             }
         });
 
-        // listener for updating Product Recycler after adding new Product
+
         prodLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
                         Intent data = result.getData();
                         getProductsFromDB();
-                       // allProducts = (List<Product>) data.getSerializableExtra("result");
-                        // below line we are running a loop to add data to adapter class.
-                      //  productsAdapter = new ProductsAdapter(allProducts, allTypes);
-                      //  productRecycler.setAdapter(productsAdapter);
+
                     }
                 }
         );
+
 
         addProductBtn = findViewById(R.id.addProductBtn);
 
@@ -156,18 +195,7 @@ public class ExploreProductsActivity extends AppCompatActivity {
             }
         });
 
-
-        // DELETE AND UPDATE TYPE BUTTONS ARE IMPLEMENTED WITHIN TRASH TYPE ADAPTER
-
-        /** TO DO **/
-        // Filtering products by type sending typeId to find products with given type
-        typeListener = new TypeListener() {
-            @Override
-            public void click(int index){
-                Integer type = allTypes.get(index).typeId;
-                Log.d("----activity TYPE INDEX FOR FILTERING PRODUCTS ",type.toString());
-            }
-        };
+        // DELETE AND UPDATE TYPE BUTTONS --> IMPLEMENTED WITHIN TRASH TYPE ADAPTER
     }
 
     private void getTypesFromDB() {
@@ -184,9 +212,7 @@ public class ExploreProductsActivity extends AppCompatActivity {
                 }
                 else{
                      allTypes = response.body();
-                    // below line we are running a loop to add data to adapter class.
                     typeAdapter = new TrashTypeAdapter(allTypes,typeListener);
-                    // below line is to set adapter to recycler view.
                     typeRecycler.setAdapter(typeAdapter);
                 }
             }
@@ -212,14 +238,47 @@ public class ExploreProductsActivity extends AppCompatActivity {
                 }
                 else{
                     allProducts = response.body();
+                    Log.d(TAG, "---onResponse: " + response);
+                    if(allProducts == null ){
+                        Toast.makeText(ExploreProductsActivity.this," no products yet to show", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+
+                        productsAdapter = new ProductsAdapter(allProducts, allTypes, editProductLauncher);
+                        productRecycler.setAdapter(productsAdapter);
+                    }
+
+                }
+            }
+            @Override
+            public void onFailure(Call<List<Product>> call, Throwable throwable) {
+                Log.d(TAG, "----onFailure: " +throwable.getMessage());
+                Toast.makeText(ExploreProductsActivity.this, throwable.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+    }
+    private void getFilteredProductsFromDB(String tid) {
+        SharedPreferences sharedPref = getSharedPreferences("token", Context.MODE_PRIVATE);
+        String jwt = sharedPref.getString("x-access-token", "");
+
+        Call<List<Product>> call = userAPIService.getProductsByType(jwt, tid);
+        call.enqueue(new Callback<List<Product>>() {
+            @Override
+            public void onResponse(Call<List<Product>> call, Response<List<Product>> response) {
+                Log.d(TAG, "Raw JSON response: " + response.body().toString());
+                if(response.code()==400 || response.code()==403 ){
+                    Toast.makeText(ExploreProductsActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    allProducts = response.body();
                     Log.d(TAG, "onResponse: " + allProducts);
                     if(allProducts == null ){
                         Toast.makeText(ExploreProductsActivity.this," no products yet to show", Toast.LENGTH_SHORT).show();
                     }
                     else{
-                        // below line we are running a loop to add data to adapter class.
-                        productsAdapter = new ProductsAdapter(allProducts, allTypes);
-                        // below line is to set adapter to recycler view.
+                        productsAdapter = new ProductsAdapter(allProducts, allTypes, editProductLauncher);
                         productRecycler.setAdapter(productsAdapter);
                     }
 
