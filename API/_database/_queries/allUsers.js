@@ -98,51 +98,67 @@ function getAllProducts() {
   )
   })
 }*/
-
 function scanProduct(barcode) {
   return new Promise((resolve, reject) => {
-    let result = []
-    db.get(`SELECT * FROM products WHERE barcode = ? ;`, [barcode], (err, rows) => {
-      if(err) { reject(err) }
-      result.push(rows)
-      resolve(result)
-    })
-  })
-
-}
-
-function getProduct(pid) {
-  return new Promise((resolve, reject) => {
-    let result = []
-    db.get(`SELECT * FROM products WHERE productId = ? ;`, [pid], (err, rows) => {
-      if(err){ reject(err) }
-      else {
-        result.push(rows)
-      resolve(result[0])
+    // Use db.get to fetch a single row based on the barcode
+    db.get(`SELECT * FROM products WHERE barcode = ?;`, [barcode], (err, row) => {
+      if (err) {
+        reject(err); // Reject the promise if there's an error
+        return; // Exit the function after rejecting to prevent further execution
       }
-    })
-  })
+      
+      if (row) {
+        resolve(row); // Resolve with the row if a matching row is found
+      } else {
+        resolve(undefined); // Resolve with undefined if no matching row is found
+      }
+    });
+  });
 }
 
 
-function productsByType(tid) {
+
+async function getProductById(pid) {
   return new Promise((resolve, reject) => {
-    let result = []
-    db.get(`SELECT * FROM products WHERE typeId = ? ;`, [tid], (err, rows) => {
-      if(err){ reject(err) }
-      else {
-        result.push(rows)
-      resolve(result)
+    db.all(`SELECT * FROM products WHERE productId = ? ;`, [pid], (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows); // `rows` will be an array of all matching rows
       }
-    })
-  })
+    });
+  });
+}
  
+async function productsByType(tid) {
+  return new Promise((resolve, reject) => {
+    let result = [];
+    db.all(`SELECT * FROM products WHERE typeId = ?;`, [tid], (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);  // `rows` will already be an array of all matching rows
+      }
+    });
+  });
 }
 
-async function sendRequest(body, uid) {
+
+
+async function sendRequest(body, uid, date) {
   return new Promise((resolve, reject) => {
-    var sql ='INSERT INTO forms (userId, productInfo, date, seen) VALUES (?,?,?,?)'
-    var data = [uid, body.productInfo, body.date, 0];
+    var sql = 'INSERT INTO forms (userId, productName, date, seen, productdetails, barcode, typeId, productImage) VALUES (?,?,?,?,?,?,?,?)';
+    var data = [
+      uid,
+      body.productName,
+      date,
+      0,
+      body.productdetails,
+      body.barcode,
+      body.typeId ,
+      body.productImage
+    ];
+
     db.run(sql, data, (err, rows) => {
       if (err) { reject(err) }
       resolve(rows)
@@ -194,21 +210,20 @@ function getContainerLocationsByType(typeId) {
 
 function getContainerLocations() {
   return new Promise((resolve, reject) => {
-    console.log('Querying containers with active = 1');
     db.all(`SELECT * FROM containers WHERE active = ?;`, [1], (err, rows) => {
       if(err){ 
         console.log('Error during query:', err);
         reject(err);
       }
       else {
-        console.log('Fetched rows:', rows);
+       // console.log('Fetched rows:', rows);
         resolve(rows);
       }
     });
   })
 }
 
-function myRecycledStat(uid) {
+async function myRecycledStat(uid) {
   return new Promise((resolve, reject) => {
     let result = []
     db.each(`SELECT * FROM recycled WHERE userId = ? ;`, [uid], (err, rows) => {
@@ -219,23 +234,37 @@ function myRecycledStat(uid) {
       }
     })
   })
-
 }
 
-function throwTrash(uid, body) {
+async function AllRecycled() {
   return new Promise((resolve, reject) => {
-    let result = []
-    db.run(`INSERT INTO recycled (userId, containerId, date) VALUES (?, ?, ?);`,
-          [parseInt(uid), parseInt(body.containerId), body.date], 
-          (err, rows) => {
-            console.log(rows)
-                if(err) { reject(err) }
-                result.push(rows)
-            },
-          () => { resolve("successfully recycled ") }
-    )
+    db.all(`SELECT * FROM recycled;`, (err, rows) => {
+      if(err){ reject(err) }
+      else {
+      resolve(rows)
+      }
+    })
   })
 }
+
+
+async function throwTrash(uid, body, date) {
+
+  return new Promise((resolve, reject) => {
+      let result = [];
+      db.run(`INSERT INTO recycled (userId, containerId, quantity, date) VALUES (?,?,?,?);`,
+          [parseInt(uid), parseInt(body.containerId), parseFloat(body.quantity) , date], (err) => {
+              if (err) {
+                  console.log(err);
+                  return reject(err);
+              }
+              resolve("successfully recycled");
+          }
+      );
+  });
+}
+
+
 
 module.exports = {
   register,
@@ -245,7 +274,7 @@ module.exports = {
   getAllTrashTypes,
   getAllProducts,
   scanProduct,
-  getProduct,
+  getProductById,
   productsByType,
   sendRequest,
   myRequests,
@@ -253,6 +282,7 @@ module.exports = {
   getContainerLocationsByType,
   getContainerLocations,
   myRecycledStat,
-  throwTrash
+  throwTrash,
+  AllRecycled
  
 }

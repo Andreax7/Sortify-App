@@ -49,9 +49,9 @@ function removeProduct(productId){
 function updateProduct(body, id){
   return new Promise((resolve, reject) => {
     db.run(`UPDATE products 
-              SET productName = ?, confirmed = ?, typeId = ?, details = ?, barcode = ?
+              SET productName = ?, typeId = ?, barcode = ?, image = ?, details = ?
               WHERE productId = ?`,
-      [body.productName, body.confirmed, parseInt(body.typeId), body.details, body.barcode, parseInt(id)],
+      [body.productName, parseInt(body.typeId), body.barcode, body.image, body.details, parseInt(id)],
       (err, result) => {
             if (err) {
                 reject(err)
@@ -137,32 +137,38 @@ function AllUsers(){
   })
 }
 
-function setUserAdmin(role, uid){
+async function setUserAdmin(role, uid){
   return new Promise((resolve, reject) => {
     db.run(`UPDATE users 
             SET role = ?
             WHERE userId = ?`,
-      [role, parseInt(uid)],
-      (err, result) => {
-          if (err) reject(err)
-          resolve(uid + " user successfully updated")
+      [ parseInt(role), parseInt(uid)],
+      function (err) {
+        if (err) return reject(err);
+        if (this.changes === 0) {
+            return reject(new Error("No user found to update"));
         }
+        resolve(uid + " user successfully updated");
+    }
     );
   })
 }
 
-function changeProfileActivity (active, uid){ 
+async function changeProfileActivity(active, uid) { 
   return new Promise((resolve, reject) => {
-    db.run(`UPDATE users 
-            SET active = ?
-            WHERE userId = ?`,
-    [active, parseInt(uid)],
-    (err, result) => {
-        if (err) reject(err)
-        resolve(uid + " user successfully updated")
+      db.run(`UPDATE users 
+              SET active = ?
+              WHERE userId = ?`,
+      [active, parseInt(uid)],
+      function (err) {
+        if (err) return reject(err);
+        if (this.changes === 0) {
+            return reject(new Error("No user found to update"));
+        }
+        resolve({ message: `${uid} user successfully updated` });
       }
-    );
-  })
+    )
+  });
 }
 
 
@@ -199,7 +205,7 @@ function updateUserRequest(seen,fid) {
     [seen, parseInt(fid)],
     (err, result) => {
         if (err) reject(err)
-        resolve(fid + " user successfully updated")
+        resolve(fid + " user request successfully updated")
       }
     );
   })
@@ -370,7 +376,7 @@ module.exports = {
 
   setUserAdmin,
   changeProfileActivity,
-  
+
   AllUserRequests,
   userReq,
   updateUserRequest,

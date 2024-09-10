@@ -61,6 +61,10 @@ router.post('/login', async (req,res)=> {
             res.statusMessage = "No user with given email"
             return res.status(400).send('No user with given email')
         }
+        if(userData.active === 0){
+            res.statusMessage = "Your account is deactivated"
+            return res.status(400).send('Your account is deactivated')
+        }
         var checkPass = bcrypt.compareSync(req.body.password, userData.password)    
         if(checkPass){
 				const email  = req.body.email

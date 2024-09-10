@@ -160,14 +160,17 @@ router.put("/product/:id", auth.authenticateToken, async (req, res) => {
         if(userObj.role === 1){
             const allProducts = await users.getAllProducts().then((res)=> {return res})
             let id = allProducts.find( el => el.productId === parseInt(req.params.id) )
-      
+            console.log('--- ADMIN UPDATE PRODUCT ', id!==undefined)
             if(id !== undefined){
                 if(req.body.productName === "" || req.body.details === "" || req.body.barcode === ""  ){
                     return res.status(400).json({ "error": 'Empty fields' })
                 }
+                
                 DBresponse = await admin.updateProduct(req.body, req.params.id).then((res)=> {return res})
                 if(DBresponse=="Successfully updated"){
-                    return res.status(201).json(allProducts)
+                    const refreshedListOfProducts = await users.getAllProducts();
+                    console.log('RETURNING ALL PRODUCTS', refreshedListOfProducts.length)
+                    return res.status(201).json(refreshedListOfProducts);
                 }
                 
             }
@@ -222,32 +225,36 @@ router.get('/users', auth.authenticateToken, async (req, res) =>{
 
 
 //activate & deactivate users profile or set/ unset user as admin
-router.put('/users/:uid', auth.authenticateToken, async (req, res) =>{
-    try{
-        const userObj = req.token
-        if(userObj.role === 1){
-            const users = await admin.AllUsers().then((res)=> {return res})
-            const user = users.find( el => el.userId === parseInt(req.params.uid) )
-            console.log(user)
-            if(user === undefined){
-                return res.status(400).json("unknown userId");
-            }
-            else{
-                if(req.body.role){
-                    const DBresponse = await admin.setUserAdmin(parseInt(req.body.role),parseInt(req.params.uid)).then((res)=> {return res})
-                    return res.status(201).json(DBresponse)
+router.put('/users/:uid', auth.authenticateToken, async (req, res) => {
+    try {
+    
+        const userObj = req.token;
+
+        if (userObj.role === 1) {
+            const users = await admin.AllUsers(); 
+            const user = users.find(el => el.userId === parseInt(req.params.uid));
+
+            if (!user) {
+                return res.status(400).json({ error: "unknown userId" });
+            } else {
+                if (req.body.role !=user.role) {
+                    //console.log('change role from '+ user.role+ " to "+ req.body.active +" "+req.params.uid);
+                    const DBresponse = await admin.setUserAdmin(parseInt(req.body.role), parseInt(req.params.uid));
+                    return res.status(201).json({ message: DBresponse });
                 }
-                if(req.body.active){
-                    const DBresponse = await admin.changeProfileActivity(parseInt(req.body.active),parseInt(req.params.uid)).then((res)=> {return res})
-                    return res.status(201).json(DBresponse)
+                if (req.body.active != user.active) {
+                   // console.log('change activity from '+ user.active+ " to "+ req.body.active +" "+req.params.uid);
+                    const DBresponse = await admin.changeProfileActivity(parseInt(req.body.active), parseInt(req.params.uid));
+                    //console.log(DBresponse)
+                    return res.status(201).json({ message: DBresponse });
                 }
             }
+        } else {
+            res.status(403).json({ "FORBIDDEN": 'Unauthorized' });
         }
-        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
-    }
-    catch (err){
+    } catch (err) {
         console.log(err.message);
-        res.status(400).send('something went wrong!');
+        res.status(400).json({ error: 'something went wrong!' }); // Use JSON format for error response
     }
 });
 
@@ -271,10 +278,10 @@ router.get('/users/requests', auth.authenticateToken, async (req, res) =>{
 
 router.get('/users/requests/:id', auth.authenticateToken, async (req, res) =>{
     try{
-       // const userObj = req.token
+        const userObj = req.token
         if(userObj.role === 1){
-            const userRequests = await admin.userReq(req.params.id).then((res)=> {return res})
-            console.log(userRequests)
+            const userRequests = await admin.userReq(parseInt(req.params.id)).then((res)=> {return res})
+           // console.log(userRequests)
             res.status(201).json(userRequests);
         }
         else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
@@ -287,10 +294,11 @@ router.get('/users/requests/:id', auth.authenticateToken, async (req, res) =>{
 
 router.put('/users/requests/:id', auth.authenticateToken, async (req, res) =>{
     try{
-        //const userObj = req.token
+    
+        const userObj = req.token
         if(userObj.role === 1){
-            if(req.body.seen !== undefined || req.body.seen !== "" ){
-                const userRequest = await admin.updateUserRequest(parseInt(req.body.seen), req.params.id).then((res)=> {return res})
+            if(req.body.seen !== undefined){
+                const userRequest = await admin.updateUserRequest(parseInt(req.body.seen), parseInt(req.params.id)).then((res)=> {return res})
                 console.log(userRequest)
                 res.status(201).json(userRequest);
             }
@@ -310,8 +318,7 @@ router.get('/containers', auth.authenticateToken, async (req, res) =>{
         const userObj = req.token
         if(userObj.role === 1){
             const allContainers = await admin.AllContainerLocations().then((res)=> {return res})
-            console.log(allContainers)
-       // await user.save();
+           //console.log(allContainers);
             res.status(201).json(allContainers);
         }
         else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })
@@ -390,32 +397,7 @@ router.put('/containers/:id', auth.authenticateToken, async (req, res) =>{
     }
 });
 
-router.post('/occupancy/add', auth.authenticateToken, async (req, res) =>{
-    try{
-        const userObj = req.token
-        //console.log(userObj)
-        if(userObj.role === 1){
-            if(req.body.date === undefined || req.body.state === undefined || req.body.containerId === undefined ) {
-                return res.status(400).json({ "error": 'Empty fields' }) 
-            }
-            else if(req.body.date === "" || req.body.state === "" || req.body.containerId === "" ) {
-                return res.status(400).json({ "error": 'Empty fields' }) 
-            }
-            const occupancies = await admin.getAllOccupancies().then((res)=> {return res})
-            let id = occupancies.find( el => el.containerId === req.body.containerId )
-            if(id === undefined){
-                DBresponse =  await admin.addOccupancy(parseInt(req.body.containerId),parseInt(req.body.state), req.body.date ).then((res)=> {return res})
-                return res.status(201).json(DBresponse)
-            }
-            else res.status(400).json({ "error": 'This product exists' })
-        }
-        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })     
-    }
-    catch (err){
-        console.log(err.message);
-        res.status(400).send('something went wrong!');
-    }
-});
+
 
 router.get('/occupancy/container/:cid', auth.authenticateToken, async (req, res) =>{
     try{
@@ -469,4 +451,32 @@ router.put('/occupancy/:id', auth.authenticateToken, async (req, res) =>{
     }
 });
 
+
+router.post('/occupancy/add', auth.authenticateToken, async (req, res) =>{
+    try{
+        const userObj = req.token
+        
+        //console.log(userObj)
+        if(userObj){
+            if( req.body.state === undefined || req.body.containerId === undefined ) {
+                return res.status(400).json({ "error": 'Empty fields' }) 
+            }
+            else if(req.body.state === "" || req.body.containerId === "" ) {
+                return res.status(400).json({ "error": 'Empty fields' }) 
+            }
+            const occupancies = await admin.getAllOccupancies().then((res)=> {return res})
+            let id = occupancies.find( el => el.containerId === req.body.containerId )
+            if(id === undefined){
+                DBresponse =  await admin.addOccupancy(parseInt(req.body.containerId),parseInt(req.body.state), req.body.date ).then((res)=> {return res})
+                return res.status(201).json(DBresponse)
+            }
+            else res.status(400).json({ "error": 'This product exists' })
+        }
+        else res.status(403).json({ "FORBIDDEN": 'Unauthorized' })     
+    }
+    catch (err){
+        console.log(err.message);
+        res.status(400).send('something went wrong!');
+    }
+});
 module.exports = router;
